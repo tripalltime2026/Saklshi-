@@ -1,7 +1,10 @@
 <?php
 
 return [
-    'default' => env('CACHE_STORE', 'file'),
+    // Production-safe for this single-instance app. Do not let a Cloud-level
+    // CACHE_STORE=database override this until database cache tables exist.
+    'default' => 'file',
+
     'stores' => [
         'file' => [
             'driver' => 'file',
@@ -13,5 +16,6 @@ return [
             'serialize' => false,
         ],
     ],
+
     'prefix' => env('CACHE_PREFIX', 'saklshi_cache_'),
 ];
