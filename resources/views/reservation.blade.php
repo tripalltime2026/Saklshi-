@@ -10,6 +10,7 @@
         'friends' => 'მეგობრები',
         'couple' => 'წყვილი',
     ];
+    $oldItems = old('items', []);
 @endphp
 
 @section('content')
@@ -18,13 +19,10 @@
      data-max-date="{{ $maxDate }}"
      data-database-ready="{{ $databaseReady ? '1' : '0' }}">
     <header class="guest-nav">
-        <a href="{{ route('reservation.index') }}" class="guest-brand" aria-label="ბათუმის სახლში">
-            <span class="guest-brand-mark">⌂</span>
-            <span class="guest-brand-copy">
-                <strong>ბათუმის სახლში</strong>
-                <small>RESTAURANT · BATUMI</small>
-            </span>
+        <a href="{{ route('reservation.index') }}" class="guest-brand guest-brand-logo" aria-label="ბათუმის სახლში">
+            <img src="{{ asset('images/batumis-sakhlshi-logo.png') }}" alt="ბათუმის სახლში">
         </a>
+
         <nav class="guest-links" aria-label="მთავარი ნავიგაცია">
             <a href="#home">მთავარი</a>
             <a href="#menu">მენიუ</a>
@@ -32,6 +30,7 @@
             <a href="#gallery">ფოტოგალერეა</a>
             <a href="#contact">კონტაქტი</a>
         </nav>
+
         <div class="guest-nav-actions">
             <a class="phone-chip" href="tel:+995555123456">
                 <span>☎</span>
@@ -56,13 +55,13 @@
             <div class="booking-title-row">
                 <div>
                     <h2>დაჯავშნე მაგიდა</h2>
-                    <p>შეარჩიე სასურველი თარიღი და შექმენი შენი საღამო ბათუმის სახლში</p>
+                    <p>შეარჩიე თარიღი, სტუმრების რაოდენობა და სურვილის შემთხვევაში წინასწარ აირჩიე მენიუ.</p>
                 </div>
                 <div class="booking-steps">
                     <span class="active"><b>1</b> თარიღი და დრო</span>
                     <span><b>2</b> სტუმრები და მიზეზი</span>
-                    <span><b>3</b> პირადი ინფორმაცია</span>
-                    <span><b>4</b> დადასტურება</span>
+                    <span><b>3</b> მენიუ</span>
+                    <span><b>4</b> ინფორმაცია</span>
                 </div>
             </div>
 
@@ -90,6 +89,7 @@
                     <div class="date-column">
                         <label class="section-label"><span>1</span> აირჩიე თარიღი</label>
                         <input type="hidden" name="visit_date" value="{{ old('visit_date', $today) }}" data-date-input>
+
                         <div class="calendar-card">
                             <div class="calendar-head">
                                 <button type="button" data-cal-prev aria-label="წინა თვე">‹</button>
@@ -128,6 +128,7 @@
                 <div class="occasion-block">
                     <label class="section-label"><span>2</span> შეხვედრის ტიპი</label>
                     <input type="hidden" name="occasion" value="{{ old('occasion', 'banquet') }}" data-occasion-input>
+
                     <div class="occasion-grid">
                         <button type="button" data-occasion="banquet" class="{{ old('occasion', 'banquet') === 'banquet' ? 'chosen' : '' }}">
                             <span>♬</span><strong>ბანკეტი</strong>
@@ -144,14 +145,73 @@
                     </div>
                 </div>
 
+                <section class="menu-preorder-block" id="menu">
+                    <div class="menu-preorder-head">
+                        <div>
+                            <label class="section-label"><span>3</span> წინასწარ აირჩიე მენიუ</label>
+                            <p>ეს ეტაპი არასავალდებულოა. სურვილის შემთხვევაში კერძები წინასწარ დაამატე ჯავშანს.</p>
+                        </div>
+                        <div class="menu-preorder-total">
+                            <span><b data-menu-count>0</b> ერთეული</span>
+                            <strong data-menu-total>0.00 ₾</strong>
+                        </div>
+                    </div>
+
+                    @forelse ($menu->groupBy('category') as $category => $items)
+                        <div class="menu-category-card">
+                            <div class="menu-category-title">
+                                <h3>{{ $category }}</h3>
+                                <span>{{ $items->count() }} პოზიცია</span>
+                            </div>
+
+                            <div class="menu-items-grid">
+                                @foreach ($items as $item)
+                                    @php($qty = (int) ($oldItems[$item->id] ?? 0))
+                                    <article class="menu-select-item" data-menu-row data-price="{{ $item->price }}">
+                                        <div class="menu-select-copy">
+                                            <strong>{{ $item->name }}</strong>
+                                            <span>{{ number_format($item->price / 100, 2) }} ₾</span>
+                                        </div>
+                                        <div class="menu-counter">
+                                            <button type="button" data-counter-minus aria-label="{{ $item->name }} შემცირება">−</button>
+                                            <b data-counter-value>{{ $qty }}</b>
+                                            <button type="button" data-counter-plus aria-label="{{ $item->name }} დამატება">+</button>
+                                            <input type="hidden" name="items[{{ $item->id }}]" value="{{ $qty }}" data-qty-input>
+                                        </div>
+                                    </article>
+                                @endforeach
+                            </div>
+                        </div>
+                    @empty
+                        <div class="menu-empty-state">
+                            მენიუ მალე დაემატება. მაგიდის დაჯავშნა მენიუს არჩევის გარეშეც შეგიძლიათ.
+                        </div>
+                    @endforelse
+                </section>
+
                 <div class="personal-block">
-                    <label class="section-label"><span>3</span> თქვენი ინფორმაცია</label>
+                    <label class="section-label"><span>4</span> თქვენი ინფორმაცია</label>
+
                     <div class="personal-grid">
-                        <label>სახელი<input required minlength="2" maxlength="80" autocomplete="given-name" name="first_name" value="{{ old('first_name') }}" placeholder="მაგ. ანა"></label>
-                        <label>გვარი<input required minlength="2" maxlength="80" autocomplete="family-name" name="last_name" value="{{ old('last_name') }}" placeholder="მაგ. ბერიძე"></label>
-                        <label>დაბადების თარიღი<input required type="date" name="birth_date" value="{{ old('birth_date') }}" max="{{ $today }}"></label>
-                        <label>ტელეფონი<input required type="tel" maxlength="24" autocomplete="tel" name="phone" value="{{ old('phone', '+995 ') }}" placeholder="+995 555 12 34 56"></label>
-                        <label class="notes-field">დამატებითი შენიშვნა <span>(არასავალდებულო)</span><textarea maxlength="500" name="notes" placeholder="მაგ. ფანჯარასთან მაგიდა, განსაკუთრებული ინფორმაცია...">{{ old('notes') }}</textarea></label>
+                        <label>სახელი
+                            <input required minlength="2" maxlength="80" autocomplete="given-name" name="first_name" value="{{ old('first_name') }}" placeholder="მაგ. ანა">
+                        </label>
+
+                        <label>გვარი
+                            <input required minlength="2" maxlength="80" autocomplete="family-name" name="last_name" value="{{ old('last_name') }}" placeholder="მაგ. ბერიძე">
+                        </label>
+
+                        <label>დაბადების თარიღი
+                            <input required type="date" name="birth_date" value="{{ old('birth_date') }}" max="{{ $today }}">
+                        </label>
+
+                        <label>ტელეფონი
+                            <input required type="tel" maxlength="24" autocomplete="tel" name="phone" value="{{ old('phone', '+995 ') }}" placeholder="+995 555 12 34 56">
+                        </label>
+
+                        <label class="notes-field">დამატებითი შენიშვნა <span>(არასავალდებულო)</span>
+                            <textarea maxlength="500" name="notes" placeholder="მაგ. ფანჯარასთან მაგიდა, განსაკუთრებული ინფორმაცია...">{{ old('notes') }}</textarea>
+                        </label>
                     </div>
 
                     <input type="hidden" name="marketing_consent" value="0">
@@ -168,16 +228,24 @@
                 <h3>თქვენი ჯავშანი</h3>
                 <a href="#booking">✎ რედაქტირება</a>
             </div>
+
             <div class="summary-list">
                 <div><span>▣ თარიღი</span><strong data-summary-date></strong></div>
                 <div><span>◷ დრო</span><strong data-summary-time></strong></div>
                 <div><span>♟ სტუმრები</span><strong><b data-summary-guests></b> ადამიანი</strong></div>
                 <div><span>♬ მიზეზი</span><strong data-summary-occasion>{{ $occasionLabels[old('occasion', 'banquet')] }}</strong></div>
+                <div><span>♨ მენიუ</span><strong data-summary-menu>არ არის არჩეული</strong></div>
             </div>
-            <div class="summary-message">⌂<span>მოხარული ვიქნებით თქვენთან<br>შეხვედრით ბათუმის სახლში!</span></div>
+
+            <div class="summary-message">
+                <img src="{{ asset('images/batumis-sakhlshi-logo.png') }}" alt="" class="summary-logo">
+                <span>მოხარული ვიქნებით თქვენთან<br>შეხვედრით ბათუმის სახლში!</span>
+            </div>
+
             <button type="submit" form="booking-form" class="summary-submit" {{ $databaseReady ? '' : 'disabled' }}>
                 დაჯავშნე მაგიდა <span>→</span>
             </button>
+
             <p class="secure-note">▣ თქვენი მონაცემები დაცულია</p>
         </aside>
     </main>
