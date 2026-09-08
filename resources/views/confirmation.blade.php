@@ -8,13 +8,19 @@
 @endpush
 
 @php
-    $time = sprintf('%02d:%02d', intdiv($reservation->start_minute, 60), $reservation->start_minute % 60);
+    $hour = intdiv((int) $reservation->start_minute, 60);
+    $minute = ((int) $reservation->start_minute) % 60;
+    $time = sprintf('%02d:%02d', $hour, $minute);
     $occasionNames = [
         'banquet' => 'ბანკეტი',
         'birthday' => 'დაბადების დღე',
         'friends' => 'მეგობრები',
         'couple' => 'წყვილი',
     ];
+    $menuTotal = 0;
+    foreach ($reservation->items as $menuLine) {
+        $menuTotal += ((int) $menuLine->unit_price) * ((int) $menuLine->quantity);
+    }
 @endphp
 
 @section('content')
@@ -35,29 +41,34 @@
             <p>{{ $reservation->first_name }}, თქვენი ჯავშანი წარმატებით შევინახეთ.</p>
 
             <div class="confirmation-summary">
-                <div><span>თარიღი</span><strong>{{ $reservation->visit_date->translatedFormat('d F, Y') }}</strong></div>
+                <div><span>თარიღი</span><strong>{{ $reservation->visit_date->format('d.m.Y') }}</strong></div>
                 <div><span>დრო</span><strong>{{ $time }}</strong></div>
                 <div><span>სტუმრები</span><strong>{{ $reservation->guests }} ადამიანი</strong></div>
                 <div><span>მიზეზი</span><strong>{{ $occasionNames[$reservation->occasion] ?? 'რეზერვაცია' }}</strong></div>
-                <div><span>მაგიდა</span><strong>{{ $reservation->table?->name ?? 'დადასტურებულია' }}</strong></div>
+                <div><span>მაგიდა</span><strong>{{ optional($reservation->table)->name ?? 'დადასტურებულია' }}</strong></div>
                 <div><span>ჯავშნის კოდი</span><strong>{{ $reservation->reference }}</strong></div>
             </div>
 
-            @if ($reservation->items->isNotEmpty())
+            @if ($reservation->items->count() > 0)
                 <div class="confirmation-note confirmation-menu">
                     <span>წინასწარ არჩეული მენიუ</span>
                     @foreach($reservation->items as $item)
-                        <p>{{ $item->name }} × {{ $item->quantity }} — {{ number_format(($item->unit_price * $item->quantity) / 100, 2) }} ₾</p>
+                        <p>{{ $item->name }} × {{ $item->quantity }} — {{ number_format((((int) $item->unit_price) * ((int) $item->quantity)) / 100, 2) }} ₾</p>
                     @endforeach
-                    <strong>ჯამი: {{ number_format($reservation->items->sum(fn($item) => $item->unit_price * $item->quantity) / 100, 2) }} ₾</strong>
+                    <strong>ჯამი: {{ number_format($menuTotal / 100, 2) }} ₾</strong>
                 </div>
             @endif
 
             @if ($reservation->notes)
-                <div class="confirmation-note"><span>შენიშვნა</span><p>{{ $reservation->notes }}</p></div>
+                <div class="confirmation-note">
+                    <span>შენიშვნა</span>
+                    <p>{{ $reservation->notes }}</p>
+                </div>
             @endif
 
-            <div class="confirmation-welcome">⌂ <span>მოხარული ვიქნებით თქვენთან შეხვედრით<br>ბათუმის სახლში.</span></div>
+            <div class="confirmation-welcome">
+                <span>მოხარული ვიქნებით თქვენთან შეხვედრით<br>ბათუმის სახლში.</span>
+            </div>
 
             <div class="confirmation-actions print-hide">
                 <button type="button" onclick="window.print()">დადასტურების ბეჭდვა</button>
