@@ -32,6 +32,8 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        MenuItem::query()->where('name', 'აჭარული ხაჭაპური')->delete();
+
         $menu = [
             ['category' => 'ცივი კერძები', 'name' => 'ქართული ყველის ასორტი', 'price' => 2800],
             ['category' => 'ცივი კერძები', 'name' => 'ფხალის ასორტი', 'price' => 2400],
@@ -39,7 +41,6 @@ class DatabaseSeeder extends Seeder
             ['category' => 'ცხელი კერძები', 'name' => 'ხინკალი ქალაქური', 'price' => 220],
             ['category' => 'ცხელი კერძები', 'name' => 'ოჯახური', 'price' => 3200],
             ['category' => 'ცხელი კერძები', 'name' => 'ჩქმერული', 'price' => 3600],
-            ['category' => 'ცომეული', 'name' => 'აჭარული ხაჭაპური', 'price' => 2200],
             ['category' => 'ცომეული', 'name' => 'იმერული ხაჭაპური', 'price' => 2000],
             ['category' => 'დესერტი', 'name' => 'ქართული ნუგბარი', 'price' => 1600],
             ['category' => 'უალკოჰოლო', 'name' => 'ლიმონათი', 'price' => 600],
