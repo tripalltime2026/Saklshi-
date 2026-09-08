@@ -26,9 +26,8 @@
 @section('content')
 <div class="admin-app">
     <aside class="admin-sidebar">
-        <a class="admin-logo" href="{{ route('admin.dashboard') }}">
-            <span class="admin-logo-mark">⌂</span>
-            <span><strong>ბათუმის სახლში</strong><small>RESTAURANT · BATUMI</small></span>
+        <a class="admin-logo admin-logo-image" href="{{ route('admin.dashboard') }}">
+            <img src="{{ asset('images/batumis-sakhlshi-logo.png') }}" alt="ბათუმის სახლში">
         </a>
 
         <nav class="side-nav">
@@ -164,6 +163,15 @@
                                             <div class="row-detail-card" hidden>
                                                 <strong>{{ $reservation->reference }}</strong>
                                                 <p>დაბადება: {{ $reservation->birth_day }}/{{ $reservation->birth_month }}{{ $reservation->birth_year ? '/'.$reservation->birth_year : '' }}</p>
+                                                @if($reservation->items->isNotEmpty())
+                                                    <div class="admin-preorder-detail">
+                                                        <span>წინასწარი მენიუ</span>
+                                                        @foreach($reservation->items as $item)
+                                                            <p>{{ $item->name }} × {{ $item->quantity }} — {{ number_format(($item->unit_price * $item->quantity) / 100, 2) }} ₾</p>
+                                                        @endforeach
+                                                        <strong>ჯამი: {{ number_format($reservation->items->sum(fn($item) => $item->unit_price * $item->quantity) / 100, 2) }} ₾</strong>
+                                                    </div>
+                                                @endif
                                                 @if($reservation->notes)<p>{{ $reservation->notes }}</p>@endif
                                                 @if($reservation->status === 'confirmed')
                                                     <form method="POST" action="{{ route('admin.reservations.status', $reservation) }}">
