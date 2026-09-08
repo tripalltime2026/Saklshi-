@@ -16,6 +16,8 @@ class AdminController extends Controller
     {
         $query = trim((string) $request->query('q', ''));
         $date = (string) $request->query('date', '');
+        $today = now('Asia/Tbilisi')->toDateString();
+        $mapDate = $date !== '' ? $date : $today;
 
         $reservations = Reservation::query()
             ->with(['table', 'items'])
@@ -28,8 +30,8 @@ class AdminController extends Controller
                         ->orWhere('reference', 'like', "%{$query}%");
                 });
             })
-            ->orderByDesc('visit_date')
-            ->orderByDesc('start_minute')
+            ->orderBy('visit_date')
+            ->orderBy('start_minute')
             ->limit(500)
             ->get();
 
@@ -49,6 +51,7 @@ class AdminController extends Controller
                     'phone' => $latest->phone,
                     'birth_day' => $latest->birth_day,
                     'birth_month' => $latest->birth_month,
+                    'birth_year' => $latest->birth_year,
                     'marketing_consent' => $latest->marketing_consent,
                     'last_visit' => $latest->visit_date,
                     'visits' => $rows->whereIn('status', ['arrived', 'completed'])->count(),
@@ -56,19 +59,54 @@ class AdminController extends Controller
             })
             ->values();
 
-        $today = now('Asia/Tbilisi')->toDateString();
+        $tables = DiningTable::query()->orderBy('id')->get();
+
+        $todayReservations = Reservation::query()
+            ->with('items')
+            ->whereDate('visit_date', $today)
+            ->whereNotIn('status', ['cancelled', 'no_show'])
+            ->get();
+
+        $todayCount = $todayReservations->count();
+        $todayGuestCount = (int) $todayReservations->sum('guests');
+        $restaurantCapacity = 210;
+        $occupancyPercent = $restaurantCapacity > 0
+            ? min(100, (int) round(($todayGuestCount / $restaurantCapacity) * 100))
+            : 0;
+        $todayPreorderRevenue = (int) $todayReservations->sum(
+            fn ($reservation) => $reservation->items->sum(
+                fn ($item) => $item->unit_price * $item->quantity
+            )
+        );
+
+        $reservedTableIds = Reservation::query()
+            ->whereDate('visit_date', $mapDate)
+            ->whereNotIn('status', ['cancelled', 'no_show'])
+            ->pluck('dining_table_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $statusBreakdown = Reservation::query()
+            ->whereDate('visit_date', $today)
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
 
         return view('admin.dashboard', [
             'reservations' => $reservations,
             'guests' => $guests,
             'menu' => MenuItem::query()->orderBy('category')->orderBy('name')->get(),
-            'tables' => DiningTable::query()->orderBy('id')->get(),
+            'tables' => $tables,
             'today' => $today,
-            'todayCount' => Reservation::query()
-                ->whereDate('visit_date', $today)
-                ->whereNotIn('status', ['cancelled', 'no_show'])
-                ->count(),
+            'mapDate' => $mapDate,
+            'todayCount' => $todayCount,
+            'todayGuestCount' => $todayGuestCount,
+            'restaurantCapacity' => $restaurantCapacity,
+            'occupancyPercent' => $occupancyPercent,
+            'todayPreorderRevenue' => $todayPreorderRevenue,
             'repeatGuests' => $guests->where('visits', '>', 1)->count(),
+            'reservedTableIds' => $reservedTableIds,
+            'statusBreakdown' => $statusBreakdown,
             'query' => $query,
             'date' => $date,
         ]);
