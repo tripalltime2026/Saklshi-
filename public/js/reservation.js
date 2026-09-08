@@ -1,239 +1,171 @@
 (() => {
-    const app = document.querySelector('.reservation-app');
-    if (!app) return;
+    const page = document.querySelector('.guest-page');
+    if (!page) return;
 
-    const steps = [...app.querySelectorAll('[data-step]')];
-    const tabs = [...app.querySelectorAll('[data-step-tab]')];
-    const currentStepLabel = app.querySelector('[data-current-step]');
-    const next = app.querySelector('[data-next]');
-    const back = app.querySelector('[data-back]');
-    const submit = app.querySelector('[data-submit]');
-    const fourSteps = app.querySelector('[data-four-steps]');
-    const miniSummary = app.querySelector('[data-mini-summary]');
-    const dateInput = app.querySelector('[name="visit_date"]');
-    const timeInput = app.querySelector('[name="visit_time"]');
-    const guestsInput = app.querySelector('[data-guests-input]');
-    const tableInput = app.querySelector('[data-table-input]');
-    const guestButtons = [...app.querySelectorAll('[data-guests]')];
-    const tableButtons = [...app.querySelectorAll('[data-table-id]')];
-    const visitSummary = app.querySelector('[data-visit-summary]');
-    const availabilityStatus = app.querySelector('[data-availability-status]');
-    const dbReady = app.dataset.databaseReady === '1';
-    const availabilityUrl = app.dataset.availabilityUrl;
-    let step = Number(app.dataset.initialStep || 0);
-    let occupied = new Set();
+    const form = document.getElementById('booking-form');
+    const dateInput = form.querySelector('[data-date-input]');
+    const timeInput = form.querySelector('[data-time-input]');
+    const guestsInput = form.querySelector('[data-guests-input]');
+    const occasionInput = form.querySelector('[data-occasion-input]');
 
-    const timeToMinutes = (value) => {
-        const [h, m] = String(value || '').split(':').map(Number);
-        return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : NaN;
+    const calTitle = document.querySelector('[data-cal-title]');
+    const calDays = document.querySelector('[data-cal-days]');
+    const prev = document.querySelector('[data-cal-prev]');
+    const next = document.querySelector('[data-cal-next]');
+
+    const minDate = page.dataset.minDate;
+    const maxDate = page.dataset.maxDate;
+
+    const parseDate = (value) => {
+        const parts = value.split('-').map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2]);
     };
 
-    const formatMoney = (cents) => (cents / 100).toFixed(2) + ' ₾';
+    const toYmd = (date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + d;
+    };
 
-    const updateSummary = () => {
-        const guests = Number(guestsInput?.value || 0);
-        const selectedTable = tableButtons.find(button => button.dataset.tableId === tableInput?.value);
-        const text = [dateInput?.value, timeInput?.value, guests ? guests + ' სტუმარი' : null, selectedTable?.getAttribute('aria-label')?.split(',')[0]]
-            .filter(Boolean)
-            .join(' · ');
+    let selectedDate = parseDate(dateInput.value || minDate);
+    let displayMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
 
-        if (visitSummary) visitSummary.textContent = text;
-        if (miniSummary) {
-            miniSummary.textContent = text;
-            miniSummary.hidden = step === 0;
+    const min = parseDate(minDate);
+    const max = parseDate(maxDate);
+
+    const renderCalendar = () => {
+        calTitle.textContent = new Intl.DateTimeFormat('ka-GE', {
+            month: 'long',
+            year: 'numeric'
+        }).format(displayMonth);
+
+        calDays.innerHTML = '';
+
+        const first = new Date(displayMonth.getFullYear(), displayMonth.getMonth(), 1);
+        const lastDay = new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 0).getDate();
+        const mondayIndex = (first.getDay() + 6) % 7;
+
+        for (let i = 0; i < mondayIndex; i += 1) {
+            const blank = document.createElement('span');
+            blank.className = 'calendar-blank';
+            calDays.appendChild(blank);
         }
+
+        for (let day = 1; day <= lastDay; day += 1) {
+            const date = new Date(displayMonth.getFullYear(), displayMonth.getMonth(), day);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = String(day);
+            button.dataset.date = toYmd(date);
+
+            const disabled = date < min || date > max;
+            button.disabled = disabled;
+
+            if (toYmd(date) === dateInput.value) button.classList.add('selected');
+            if (toYmd(date) === minDate) button.classList.add('today');
+
+            button.addEventListener('click', () => {
+                selectedDate = date;
+                dateInput.value = toYmd(date);
+                renderCalendar();
+                updateSummary();
+            });
+
+            calDays.appendChild(button);
+        }
+
+        const prevMonthEnd = new Date(displayMonth.getFullYear(), displayMonth.getMonth(), 0);
+        const nextMonthStart = new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 1);
+        prev.disabled = prevMonthEnd < new Date(min.getFullYear(), min.getMonth(), 1);
+        next.disabled = nextMonthStart > new Date(max.getFullYear(), max.getMonth(), 1);
     };
 
-    const updateTableStates = () => {
-        const guests = Number(guestsInput?.value || 1);
-        tableButtons.forEach(button => {
-            const id = Number(button.dataset.tableId);
-            const capacity = Number(button.dataset.capacity);
-            const unavailable = occupied.has(id) || capacity < guests;
-            button.classList.toggle('unavailable', unavailable);
-            button.disabled = unavailable || !dbReady;
+    prev.addEventListener('click', () => {
+        displayMonth = new Date(displayMonth.getFullYear(), displayMonth.getMonth() - 1, 1);
+        renderCalendar();
+    });
 
-            if (unavailable && tableInput?.value === String(id)) {
-                tableInput.value = '';
-                button.classList.remove('selected');
-            }
+    next.addEventListener('click', () => {
+        displayMonth = new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 1);
+        renderCalendar();
+    });
+
+    document.querySelectorAll('[data-time]').forEach((button) => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('[data-time]').forEach((b) => b.classList.remove('chosen'));
+            button.classList.add('chosen');
+            timeInput.value = button.dataset.time;
+            updateSummary();
         });
+    });
+
+    const guestCount = document.querySelector('[data-guest-count]');
+
+    const setGuests = (value) => {
+        const nextValue = Math.max(1, Math.min(20, Number(value) || 1));
+        guestsInput.value = String(nextValue);
+        guestCount.textContent = String(nextValue);
         updateSummary();
     };
 
-    const refreshAvailability = async () => {
-        if (!dbReady || !dateInput?.value || !timeInput?.value || !availabilityUrl) {
-            updateTableStates();
+    document.querySelector('[data-guest-minus]').addEventListener('click', () => {
+        setGuests(Number(guestsInput.value) - 1);
+    });
+
+    document.querySelector('[data-guest-plus]').addEventListener('click', () => {
+        setGuests(Number(guestsInput.value) + 1);
+    });
+
+    const occasionLabels = {
+        banquet: 'ბანკეტი',
+        birthday: 'დაბადების დღე',
+        friends: 'მეგობრები',
+        couple: 'წყვილი'
+    };
+
+    document.querySelectorAll('[data-occasion]').forEach((button) => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('[data-occasion]').forEach((b) => b.classList.remove('chosen'));
+            button.classList.add('chosen');
+            occasionInput.value = button.dataset.occasion;
+            updateSummary();
+        });
+    });
+
+    const summaryDate = document.querySelector('[data-summary-date]');
+    const summaryTime = document.querySelector('[data-summary-time]');
+    const summaryGuests = document.querySelector('[data-summary-guests]');
+    const summaryOccasion = document.querySelector('[data-summary-occasion]');
+
+    function updateSummary() {
+        const d = parseDate(dateInput.value);
+        summaryDate.textContent = new Intl.DateTimeFormat('ka-GE', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            weekday: 'short'
+        }).format(d);
+        summaryTime.textContent = timeInput.value;
+        summaryGuests.textContent = guestsInput.value;
+        summaryOccasion.textContent = occasionLabels[occasionInput.value] || '—';
+    }
+
+    form.addEventListener('submit', (event) => {
+        if (page.dataset.databaseReady !== '1') {
+            event.preventDefault();
             return;
         }
 
-        const start = timeToMinutes(timeInput.value);
-        if (!Number.isFinite(start)) return;
-
-        if (availabilityStatus) availabilityStatus.textContent = 'ხელმისაწვდომობა მოწმდება…';
-
-        try {
-            const url = new URL(availabilityUrl, window.location.origin);
-            url.searchParams.set('date', dateInput.value);
-            url.searchParams.set('start', String(start));
-            const response = await fetch(url, {
-                headers: {'Accept': 'application/json'},
-                credentials: 'same-origin'
-            });
-            const data = await response.json();
-
-            if (!response.ok) throw new Error(data.message || 'ხელმისაწვდომობა ვერ შემოწმდა.');
-
-            occupied = new Set((data.occupied || []).map(Number));
-            updateTableStates();
-            if (availabilityStatus) availabilityStatus.textContent = 'ხელმისაწვდომობა განახლებულია.';
-        } catch (error) {
-            if (availabilityStatus) availabilityStatus.textContent = error.message;
-        }
-    };
-
-    const validateStep = () => {
-        if (step === 0) {
-            if (!dateInput?.value || !timeInput?.value) {
-                window.alert('აირჩიეთ თარიღი და დრო.');
-                return false;
-            }
-        }
-
-        if (step === 1 && !tableInput?.value) {
-            window.alert(dbReady ? 'აირჩიეთ თავისუფალი მაგიდა.' : 'ჯერ მოამზადეთ მონაცემთა ბაზა Laravel Cloud-ში.');
-            return false;
-        }
-
-        return true;
-    };
-
-    const renderStep = () => {
-        step = Math.max(0, Math.min(3, step));
-
-        steps.forEach((section, index) => {
-            section.hidden = index !== step;
-        });
-
-        tabs.forEach((tab, index) => {
-            tab.classList.toggle('current', index === step);
-            tab.classList.toggle('complete', index < step);
-            tab.disabled = index > step;
-            const badge = tab.querySelector('span');
-            if (badge) badge.textContent = index < step ? '✓' : String(index + 1);
-        });
-
-        if (currentStepLabel) currentStepLabel.textContent = String(step + 1);
-        if (back) back.hidden = step === 0;
-        if (fourSteps) fourSteps.hidden = step !== 0;
-        if (next) {
-            next.hidden = step === 3;
-            next.firstChild.textContent = step === 2 && Number(app.querySelector('[data-menu-count]')?.textContent || 0) === 0
-                ? 'მენიუს გარეშე გაგრძელება '
-                : 'გაგრძელება ';
-        }
-        if (submit) submit.hidden = step !== 3;
-
-        updateSummary();
-        if (step === 1) refreshAvailability();
-        window.scrollTo({top: 0, behavior: 'smooth'});
-    };
-
-    guestButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            guestButtons.forEach(item => item.classList.remove('chosen'));
-            button.classList.add('chosen');
-            guestsInput.value = button.dataset.guests;
-            tableInput.value = '';
-            tableButtons.forEach(item => item.classList.remove('selected'));
-            updateTableStates();
-        });
-    });
-
-    tableButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            if (button.disabled) return;
-            tableButtons.forEach(item => item.classList.remove('selected'));
-            button.classList.add('selected');
-            tableInput.value = button.dataset.tableId;
-            updateSummary();
-        });
-
-        if (tableInput?.value === button.dataset.tableId) {
-            button.classList.add('selected');
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) {
+            event.preventDefault();
+            firstInvalid.focus();
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     });
 
-    app.querySelectorAll('[data-menu-row]').forEach(row => {
-        const input = row.querySelector('[data-qty-input]');
-        const value = row.querySelector('[data-counter-value]');
-        const minus = row.querySelector('[data-counter-minus]');
-        const plus = row.querySelector('[data-counter-plus]');
-
-        const setQty = (qty) => {
-            const nextQty = Math.max(0, Math.min(20, Number(qty) || 0));
-            input.value = String(nextQty);
-            value.textContent = String(nextQty);
-            updateMenuTotal();
-        };
-
-        minus?.addEventListener('click', () => setQty(Number(input.value) - 1));
-        plus?.addEventListener('click', () => setQty(Number(input.value) + 1));
-    });
-
-    function updateMenuTotal() {
-        let count = 0;
-        let total = 0;
-
-        app.querySelectorAll('[data-menu-row]').forEach(row => {
-            const qty = Number(row.querySelector('[data-qty-input]')?.value || 0);
-            count += qty;
-            total += qty * Number(row.dataset.price || 0);
-        });
-
-        const countNode = app.querySelector('[data-menu-count]');
-        const totalNode = app.querySelector('[data-menu-total]');
-        if (countNode) countNode.textContent = String(count);
-        if (totalNode) totalNode.textContent = formatMoney(total);
-    }
-
-    next?.addEventListener('click', () => {
-        if (!validateStep()) return;
-        step += 1;
-        renderStep();
-    });
-
-    back?.addEventListener('click', () => {
-        step -= 1;
-        renderStep();
-    });
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const target = Number(tab.dataset.stepTab);
-            if (target <= step) {
-                step = target;
-                renderStep();
-            }
-        });
-    });
-
-    [dateInput, timeInput].forEach(input => {
-        input?.addEventListener('change', () => {
-            tableInput.value = '';
-            tableButtons.forEach(item => item.classList.remove('selected'));
-            occupied = new Set();
-            updateSummary();
-            refreshAvailability();
-        });
-    });
-
-    updateMenuTotal();
-    updateTableStates();
-    renderStep();
-
-    if (dbReady) {
-        refreshAvailability();
-        window.setInterval(refreshAvailability, 20000);
-    }
+    renderCalendar();
+    setGuests(guestsInput.value);
+    updateSummary();
 })();
