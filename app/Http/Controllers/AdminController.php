@@ -253,21 +253,30 @@ class AdminController extends Controller
     {
         MenuItem::create($this->validateMenu($request));
 
-        return back()->with('success', 'კერძი დაემატა.');
+        return redirect()->to(route('admin.dashboard').'#menu')->with('success', 'კერძი დაემატა.');
     }
 
     public function updateMenu(Request $request, MenuItem $menuItem): RedirectResponse
     {
         $menuItem->update($this->validateMenu($request));
 
-        return back()->with('success', 'კერძი განახლდა.');
+        return redirect()->to(route('admin.dashboard').'#menu')->with('success', 'კერძი განახლდა.');
     }
 
     public function toggleMenu(MenuItem $menuItem): RedirectResponse
     {
         $menuItem->update(['active' => ! $menuItem->active]);
 
-        return back()->with('success', 'მენიუს ხილვადობა განახლდა.');
+        return redirect()->to(route('admin.dashboard').'#menu')->with('success', 'მენიუს ხილვადობა განახლდა.');
+    }
+
+    public function destroyMenu(MenuItem $menuItem): RedirectResponse
+    {
+        // Reservation items retain their name, quantity and price snapshots.
+        $menuItem->delete();
+
+        return redirect()->to(route('admin.dashboard').'#menu')
+            ->with('success', 'კერძი წაიშალა. არსებული ჯავშნების შეკვეთები შენარჩუნებულია.');
     }
 
     public function storeTable(Request $request): RedirectResponse
@@ -296,13 +305,14 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:160'],
             'category' => ['required', 'string', 'max:120'],
+            'custom_category' => ['nullable', 'string', 'max:120'],
             'price_gel' => ['required', 'numeric', 'min:0', 'max:10000'],
             'active' => ['nullable', 'boolean'],
         ]);
 
         return [
             'name' => trim($validated['name']),
-            'category' => trim($validated['category']),
+            'category' => trim((string) ($validated['custom_category'] ?? '')) ?: trim($validated['category']),
             'price' => (int) round(((float) $validated['price_gel']) * 100),
             'active' => (bool) ($validated['active'] ?? false),
         ];

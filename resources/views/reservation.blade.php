@@ -157,7 +157,7 @@
                         </div>
                     </div>
 
-                    @forelse ($menu->groupBy('category') as $category => $items)
+                    @forelse ($menu->groupBy('category')->sortBy(fn ($items, $category) => array_flip(config('menu.categories'))[$category] ?? 999) as $category => $items)
                         <div class="menu-category-card">
                             <div class="menu-category-title">
                                 <h3>{{ $category }}</h3>

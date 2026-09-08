@@ -313,35 +313,63 @@
         </section>
 
         <section class="admin-panel" data-admin-panel="menu" hidden>
-            <div class="secondary-panel-head"><div><h2>მენიუს მართვა</h2><p>კერძები, კატეგორიები და ფასები</p></div></div>
+            @php
+                $menuCategories = collect(config('menu.categories'))->merge($menu->pluck('category'))->unique()->values();
+                $menuGroups = $menu->groupBy('category')->sortBy(fn ($items, $category) => array_flip(config('menu.categories'))[$category] ?? 999);
+            @endphp
+            <div class="secondary-panel-head"><div><h2>მენიუს მართვა</h2><p>კერძების დამატება, რედაქტირება და წაშლა კატეგორიების მიხედვით</p></div><span>{{ $menu->count() }} კერძი</span></div>
             <div class="management-layout">
                 <form class="management-card management-form" method="POST" action="{{ route('admin.menu.store') }}">
                     @csrf
                     <h3>ახალი კერძი</h3>
-                    <label>სახელი<input required name="name" placeholder="კერძის სახელი"></label>
-                    <label>კატეგორია<input required name="category" placeholder="მაგ. ცხელი კერძები"></label>
-                    <label>ფასი (₾)<input required type="number" min="0" max="10000" step="0.01" name="price_gel"></label>
+                    <label>სახელი<input required maxlength="160" name="name" value="{{ old('name') }}" placeholder="კერძის სახელი"></label>
+                    <label>კატეგორია<select required name="category">
+                        @foreach($menuCategories as $categoryName)
+                            <option value="{{ $categoryName }}" @selected(old('category', 'ცივი კერძები') === $categoryName)>{{ $categoryName }}</option>
+                        @endforeach
+                    </select></label>
+                    <label>ან ახალი კატეგორია<input maxlength="120" name="custom_category" value="{{ old('custom_category') }}" placeholder="არასავალდებულო"></label>
+                    <label>ფასი (₾)<input required type="number" min="0" max="10000" step="0.01" name="price_gel" value="{{ old('price_gel') }}"></label>
                     <input type="hidden" name="active" value="0">
-                    <label class="check-line"><input type="checkbox" name="active" value="1" checked> აქტიური</label>
-                    <button class="management-primary" type="submit">დამატება</button>
+                    <label class="check-line"><input type="checkbox" name="active" value="1" @checked(old('active', 1))> გამოჩნდეს სტუმრის მენიუში</label>
+                    <button class="management-primary" type="submit">კერძის დამატება</button>
                 </form>
-                <div class="cards-grid">
-                    @foreach($menu as $item)
-                        <article class="management-card">
-                            <form method="POST" action="{{ route('admin.menu.update', $item) }}">
-                                @csrf @method('PUT')
-                                <label>სახელი<input required name="name" value="{{ $item->name }}"></label>
-                                <label>კატეგორია<input required name="category" value="{{ $item->category }}"></label>
-                                <label>ფასი (₾)<input required type="number" step="0.01" name="price_gel" value="{{ number_format($item->price / 100, 2, '.', '') }}"></label>
-                                <input type="hidden" name="active" value="{{ $item->active ? 1 : 0 }}">
-                                <button type="submit">შენახვა</button>
-                            </form>
-                            <form method="POST" action="{{ route('admin.menu.toggle', $item) }}">
-                                @csrf @method('PATCH')
-                                <button class="muted-action" type="submit">{{ $item->active ? 'დამალვა' : 'გამოჩენა' }}</button>
-                            </form>
-                        </article>
-                    @endforeach
+                <div>
+                    @forelse($menuGroups as $categoryName => $categoryItems)
+                        <section aria-label="{{ $categoryName }}" style="margin-bottom:24px">
+                            <div class="secondary-panel-head"><h3>{{ $categoryName }}</h3><span>{{ $categoryItems->count() }} კერძი</span></div>
+                            <div class="cards-grid">
+                                @foreach($categoryItems as $item)
+                                    <article class="management-card">
+                                        <p>{{ $item->active ? '● აქტიური' : '○ დამალული' }}</p>
+                                        <form method="POST" action="{{ route('admin.menu.update', $item) }}">
+                                            @csrf @method('PUT')
+                                            <label>სახელი<input required maxlength="160" name="name" value="{{ $item->name }}"></label>
+                                            <label>კატეგორია<select required name="category">
+                                                @foreach($menuCategories as $option)
+                                                    <option value="{{ $option }}" @selected($item->category === $option)>{{ $option }}</option>
+                                                @endforeach
+                                            </select></label>
+                                            <label>ან ახალი კატეგორია<input maxlength="120" name="custom_category" placeholder="არასავალდებულო"></label>
+                                            <label>ფასი (₾)<input required type="number" min="0" max="10000" step="0.01" name="price_gel" value="{{ number_format($item->price / 100, 2, '.', '') }}"></label>
+                                            <input type="hidden" name="active" value="{{ $item->active ? 1 : 0 }}">
+                                            <button type="submit">შენახვა</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.menu.toggle', $item) }}">
+                                            @csrf @method('PATCH')
+                                            <button class="muted-action" type="submit">{{ $item->active ? 'დროებით დამალვა' : 'გამოჩენა' }}</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.menu.destroy', $item) }}" onsubmit="return confirm('ნამდვილად გსურთ კერძის წაშლა? არსებული ჯავშნების შეკვეთები შენარჩუნდება.');">
+                                            @csrf @method('DELETE')
+                                            <button class="danger-link" type="submit">კერძის წაშლა</button>
+                                        </form>
+                                    </article>
+                                @endforeach
+                            </div>
+                        </section>
+                    @empty
+                        <div class="management-card">მენიუ ცარიელია. დაამატეთ პირველი კერძი.</div>
+                    @endforelse
                 </div>
             </div>
         </section>
