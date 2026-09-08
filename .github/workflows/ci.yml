@@ -29,6 +29,7 @@ jobs:
       - name: Prepare application
         run: |
           cp .env.example .env
+          sed -i 's/^APP_ENV=.*/APP_ENV=testing/' .env
           php artisan key:generate
           touch database/database.sqlite
           sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
@@ -44,3 +45,9 @@ jobs:
           php artisan route:list
           php artisan view:cache
           php artisan about
+          php artisan serve --host=127.0.0.1 --port=8000 > /tmp/saklshi-ci.log 2>&1 &
+          SERVER_PID=$!
+          sleep 2
+          curl --fail --show-error http://127.0.0.1:8000/__ci/admin-dashboard > /tmp/admin.html
+          kill $SERVER_PID
+          test -s /tmp/admin.html
