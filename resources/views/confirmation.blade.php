@@ -20,12 +20,8 @@
 @section('content')
 <div class="confirmation-page">
     <header class="guest-nav confirmation-nav print-hide">
-        <a href="{{ route('reservation.index') }}" class="guest-brand">
-            <span class="guest-brand-mark">⌂</span>
-            <span class="guest-brand-copy">
-                <strong>ბათუმის სახლში</strong>
-                <small>RESTAURANT · BATUMI</small>
-            </span>
+        <a href="{{ route('reservation.index') }}" class="guest-brand guest-brand-logo">
+            <img src="{{ asset('images/batumis-sakhlshi-logo.png') }}" alt="ბათუმის სახლში">
         </a>
         <div></div>
         <a class="book-chip" href="{{ route('reservation.index') }}">ახალი ჯავშანი</a>
@@ -46,6 +42,16 @@
                 <div><span>მაგიდა</span><strong>{{ $reservation->table?->name ?? 'დადასტურებულია' }}</strong></div>
                 <div><span>ჯავშნის კოდი</span><strong>{{ $reservation->reference }}</strong></div>
             </div>
+
+            @if ($reservation->items->isNotEmpty())
+                <div class="confirmation-note confirmation-menu">
+                    <span>წინასწარ არჩეული მენიუ</span>
+                    @foreach($reservation->items as $item)
+                        <p>{{ $item->name }} × {{ $item->quantity }} — {{ number_format(($item->unit_price * $item->quantity) / 100, 2) }} ₾</p>
+                    @endforeach
+                    <strong>ჯამი: {{ number_format($reservation->items->sum(fn($item) => $item->unit_price * $item->quantity) / 100, 2) }} ₾</strong>
+                </div>
+            @endif
 
             @if ($reservation->notes)
                 <div class="confirmation-note"><span>შენიშვნა</span><p>{{ $reservation->notes }}</p></div>
