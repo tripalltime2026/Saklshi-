@@ -1,0 +1,189 @@
+:root{
+    --background:#f6f4ee;
+    --paper:#fffdf8;
+    --foreground:#243b32;
+    --primary:#344d3d;
+    --primary-2:#1e6f69;
+    --border:#dedfd6;
+    --muted:#7b8278;
+    --danger:#9a3e2b;
+    color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--background);color:var(--foreground);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans Georgian",Arial,sans-serif;font-size:16px;line-height:1.55}
+button,input,textarea,select{font:inherit}
+button,a,input,textarea,select{-webkit-tap-highlight-color:transparent}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.48}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+h1,h2{font-weight:520;letter-spacing:-.035em}
+h2{font-size:30px;margin:28px 0 8px}
+h3{font-size:18px;margin:26px 0 8px}
+small{font-size:13px}
+.top{height:92px;display:flex;align-items:center;gap:25px;border-bottom:1px solid var(--border);padding:0 4.5%;background:rgba(255,253,248,.92);backdrop-filter:blur(12px);position:relative;z-index:5}
+.brand{display:flex;gap:13px;align-items:center;font-size:22px;font-weight:750}
+.brand small{display:block;font-weight:500;font-size:11px;letter-spacing:.08em;color:#737d72;margin-top:2px}
+.brandmark{border:1px solid #536443;border-radius:24px 24px 5px 5px;width:48px;height:48px;display:grid;place-items:center;font-size:22px}
+.top-note{display:flex;align-items:center;gap:6px;margin-left:auto;color:#747c70;font-size:14px}
+.admin-link{font-size:14px;border-left:1px solid var(--border);padding-left:24px}
+.booking-layout{display:grid;grid-template-columns:minmax(320px,40%) minmax(0,60%);max-width:1500px;margin:auto;min-height:790px}
+.editorial{position:relative;overflow:hidden;min-height:790px;background:
+    radial-gradient(circle at 72% 20%,rgba(255,255,255,.12),transparent 26%),
+    linear-gradient(145deg,#12291f 0%,#284435 48%,#14281f 100%)}
+.editorial-pattern{position:absolute;inset:-20%;opacity:.18;background-image:
+    radial-gradient(circle at center,transparent 0 11px,rgba(255,255,255,.32) 12px 13px,transparent 14px),
+    linear-gradient(45deg,transparent 46%,rgba(255,255,255,.2) 47% 53%,transparent 54%);
+    background-size:80px 80px;transform:rotate(7deg)}
+.editorial:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,27,20,.15),rgba(10,27,20,.65))}
+.editorial-copy{position:relative;z-index:2;padding:64px 12%;height:100%;min-height:790px;display:flex;flex-direction:column;color:#fffbed}
+.eyebrow{font-size:12px;letter-spacing:.12em;font-weight:750;text-transform:uppercase}
+.editorial h1{font-family:Georgia,"Noto Serif Georgian",serif;font-size:48px;line-height:1.47;margin:28px 0}
+.editorial p{font-size:15px;max-width:250px;color:#ebe8da}
+.music{font-size:13px;margin-top:auto;padding-top:100px;color:#f1eddf}
+.booking-main{padding:36px 7% 30px;display:flex;flex-direction:column;background:var(--paper);min-width:0}
+.stephead{display:flex;justify-content:space-between;color:#777f6f;font-size:13px}
+.steps{display:flex;justify-content:space-between;margin-top:22px;gap:8px;border-bottom:1px solid var(--border);padding:0 0 23px}
+.steps button{display:flex;align-items:center;gap:7px;border:0;background:none;padding:0;font-size:13px;color:#7d847b;opacity:1}
+.steps button span{display:grid;place-items:center;border:1px solid #d9ded5;border-radius:50%;width:28px;height:28px;font-size:12px}
+.steps .current{color:#284a3b;font-weight:750}
+.steps .current span,.steps .complete span{color:#fff;background:var(--primary);border-color:var(--primary)}
+.muted{color:var(--muted);font-size:14px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fields:first-of-type{margin-top:22px}
+label{display:block;font-size:14px;margin:16px 0 8px}
+.field-label{margin-top:24px;font-weight:650}
+input,textarea,select{display:block;width:100%;background:#fff;border:1px solid #d9ded5;border-radius:10px;padding:13px 12px;color:#293e34;margin-top:8px;min-width:0;font-size:16px;outline:none;transition:.18s border,.18s box-shadow}
+input:focus,textarea:focus,select:focus{border-color:#4b8375;box-shadow:0 0 0 3px rgba(43,119,106,.12)}
+textarea{min-height:92px;resize:vertical}
+.guest-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.guest-options button{min-width:48px;height:48px;border:1px solid #dfe2d8;border-radius:9px;background:#fff;color:inherit}
+.guest-options .chosen{background:var(--primary);color:#fff;border-color:var(--primary)}
+.note,.warning,.error{display:flex;gap:13px;padding:18px 20px;border-radius:11px;margin:26px 0;font-size:14px}
+.note{background:#f0f2e9;border:1px solid #e2e5da}
+.note p{color:var(--muted);font-size:13px;margin-top:4px}
+.note-icon{font-size:21px}
+.warning{display:block;background:#fff7dc;border:1px solid #eedda1;color:#65541b}
+.error{display:block;background:#fff0ec;color:var(--danger);border:1px solid #f0cbc1}
+.error ul{margin:7px 0 0 18px;padding:0}
+.booking-step[hidden]{display:none!important}
+.booking-footer{margin-top:auto;padding-top:36px}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:15px}
+.primary{display:flex;gap:15px;align-items:center;justify-content:center;background:var(--primary);color:#fff;border:0;border-radius:9px;padding:15px 22px;min-height:52px}
+.primary:hover:not(:disabled){background:#2b4335}
+.back{border:0;background:none;display:flex;gap:8px;align-items:center;padding:14px 0;color:#536158}
+.mini-summary{border-top:1px solid var(--border);padding:15px 0;font-size:13px;color:#566158}
+.floor{position:relative;width:100%;height:370px;border:8px solid #d5d9cb;border-radius:4px;background:
+    linear-gradient(rgba(255,255,255,.38),rgba(255,255,255,.38)),
+    repeating-linear-gradient(90deg,#efede4 0,#efede4 49px,#e6e3d8 50px);margin-top:24px;overflow:visible}
+.windows{position:absolute;top:-8px;left:10%;width:50%;background:#d9e9e5;border-top:5px solid #599b94;text-align:center;font-size:11px;letter-spacing:.08em}
+.stage{position:absolute;right:3%;top:2%;font-size:12px;padding:7px 9px;border-radius:14px;background:#ede8dc}
+.dining-table{position:absolute;transform:translate(-50%,-50%);width:68px;height:68px;border-radius:50%;background:#dde2cb;border:4px double #8c9879;box-shadow:0 -7px #dad8d0,0 7px #dad8d0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;line-height:1.2;color:#2d4438}
+.dining-table small{font-size:9px}
+.dining-table.selected{background:var(--primary-2);color:#fff;border-color:#175e59}
+.dining-table.unavailable{background:#d1d1cc;border-color:#b4b5af;color:#777}
+.entrance{position:absolute;bottom:-13px;left:8%;background:var(--paper);padding:0 10px;font-size:11px}
+.legend{display:flex;justify-content:center;gap:16px;font-size:12px;margin-top:17px;color:#87946d}
+.teal{color:var(--primary-2)}
+.gray{color:#989b94}
+.availability-status{text-align:center;margin-top:8px}
+.menu-category{margin-top:20px}
+.menu-row{display:flex;align-items:center;gap:12px;border-bottom:1px solid #e8e9e0;padding:15px 0}
+.dish-icon{display:grid;place-items:center;background:#f0f1e8;width:45px;height:45px;border-radius:50%;color:#7b895e;font-size:22px}
+.menu-copy{min-width:0}
+.menu-row strong{font-size:15px}
+.menu-row p{font-size:14px;color:var(--muted)}
+.counter{margin-left:auto;display:flex;align-items:center;gap:11px}
+.counter button{width:34px;height:34px;border:1px solid #dfe2d8;border-radius:8px;background:#fff;padding:0}
+.counter span{min-width:18px;text-align:center;font-weight:650}
+.menu-total{display:flex;justify-content:space-between;background:#f0f2e9;padding:15px;margin:22px 0 10px;border-radius:8px}
+.consent{display:flex;gap:12px;font-size:12px;line-height:1.7;align-items:flex-start}
+.consent input{width:19px;height:19px;margin:3px 0 0;flex:0 0 auto}
+.site-footer{display:flex;justify-content:space-between;padding:20px 4.5%;font-size:12px;color:#868b80;border-top:1px solid var(--border);background:var(--paper)}
+.success-page{min-height:100vh;background:var(--paper)}
+.success-wrap{max-width:720px;margin:0 auto;padding:70px 24px;text-align:center}
+.success-icon{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;margin:0 auto 24px;background:#e8edde;font-size:32px}
+.summarybox{background:#f2f3ec;border:1px solid #e1e5da;padding:24px;border-radius:14px;margin:25px 0;text-align:left}
+.summarybox p{margin-top:8px}
+.summarybox small{display:block;margin-top:14px;color:var(--muted)}
+.link-button{display:inline-flex;align-items:center;justify-content:center;border:1px solid #d8ddd4;border-radius:9px;padding:13px 18px;margin:6px;background:#fff}
+.admin-shell{min-height:100vh;background:#f6f5f0}
+.admin-main{max-width:1200px;margin:34px auto;padding:0 24px 60px}
+.admin-headline{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.admin-headline h1{font-size:32px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:25px 0}
+.stat{padding:22px;background:#fff;border:1px solid var(--border);border-radius:12px}
+.stat span{font-size:13px;color:var(--muted)}
+.stat strong{display:block;font-size:31px;margin-top:5px}
+.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:25px 0}
+.admin-tabs button{border:1px solid var(--border);border-radius:9px;padding:10px 14px;background:#fff}
+.admin-tabs button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.admin-panel[hidden]{display:none!important}
+.admin-card{background:#fff;border:1px solid var(--border);padding:20px;border-radius:11px;margin:12px 0}
+.admin-card header{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.admin-card p{font-size:14px;margin-top:8px}
+.admin-card .actions{margin-top:15px;flex-wrap:wrap;justify-content:flex-start}
+.admin-card button{font-size:13px}
+.admin-form{max-width:680px}
+.admin-form h3{margin-top:0}
+.admin-empty{padding:50px;text-align:center;color:var(--muted)}
+.inline{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;border-radius:999px;background:#eef1e7;padding:5px 9px;font-size:12px}
+.badge.confirmed{background:#e9f0e4;color:#355c39}
+.badge.arrived{background:#e1f2ef;color:#12635c}
+.badge.completed{background:#e7e9eb;color:#47515c}
+.badge.cancelled,.badge.no_show{background:#f8e6e1;color:#8b3b2d}
+.login-card{max-width:430px;margin:9vh auto;padding:30px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 18px 50px rgba(38,55,47,.08)}
+.login-card h1{font-size:29px;margin-bottom:8px}
+.login-card .primary{width:100%;margin-top:18px}
+.flash{padding:13px 16px;background:#e8f1e6;border:1px solid #cfe0ca;border-radius:9px;margin:14px 0;color:#345a39}
+.table-editor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:800px){
+    .top{height:76px;padding:0 18px;gap:12px}
+    .brand{font-size:17px}
+    .brand small{font-size:9px}
+    .brandmark{width:40px;height:40px}
+    .top-note{display:none}
+    .admin-link{margin-left:auto;padding-left:12px}
+    .booking-layout{display:block;min-height:0}
+    .editorial{min-height:190px;height:190px}
+    .editorial-copy{min-height:190px;padding:22px}
+    .editorial h1{font-size:29px;line-height:1.25;margin:9px 0}
+    .editorial h1 br{display:none}
+    .editorial-copy p{max-width:none;font-size:13px}
+    .editorial .eyebrow{font-size:10px}
+    .music{display:none}
+    .booking-main{padding:25px 19px;min-height:650px}
+    .steps{gap:3px}
+    .steps button{font-size:10px;gap:4px}
+    .steps button span{width:24px;height:24px}
+    h2{font-size:25px}
+    .fields{gap:10px}
+    .guest-options{gap:6px}
+    .guest-options button{min-width:43px;height:43px;flex:1 0 43px}
+    .primary{padding:13px 15px;font-size:14px}
+    .floor{height:350px}
+    .dining-table{width:58px;height:58px}
+    .site-footer{gap:16px;font-size:10px}
+    .site-footer span:last-child{text-align:right}
+    .stats{gap:8px}
+    .stat{padding:13px}
+    .stat span{font-size:11px}
+    .stat strong{font-size:24px}
+    .table-editor-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+    .steps button{flex-direction:column}
+    .fields{grid-template-columns:1fr}
+    .legend{gap:9px;font-size:10px}
+    .menu-row{gap:9px}
+    .dish-icon{display:none}
+    .counter{gap:6px}
+    .stats{grid-template-columns:1fr}
+}
+@media print{
+    .top,.editorial,.site-footer,.print-hide{display:none!important}
+    .booking-layout{display:block}
+    .booking-main{padding:20px}
+}
