@@ -133,6 +133,55 @@
         });
     });
 
+    const menuRows = [...document.querySelectorAll('[data-menu-row]')];
+    const menuCount = document.querySelector('[data-menu-count]');
+    const menuTotal = document.querySelector('[data-menu-total]');
+    const summaryMenu = document.querySelector('[data-summary-menu]');
+
+    const recalcMenu = () => {
+        let totalQty = 0;
+        let totalCents = 0;
+
+        menuRows.forEach((row) => {
+            const input = row.querySelector('[data-qty-input]');
+            const value = row.querySelector('[data-counter-value]');
+            const qty = Math.max(0, Math.min(20, Number(input.value) || 0));
+            input.value = String(qty);
+            value.textContent = String(qty);
+
+            if (qty > 0) row.classList.add('selected');
+            else row.classList.remove('selected');
+
+            totalQty += qty;
+            totalCents += qty * Number(row.dataset.price || 0);
+        });
+
+        if (menuCount) menuCount.textContent = String(totalQty);
+        if (menuTotal) menuTotal.textContent = (totalCents / 100).toFixed(2) + ' ₾';
+
+        if (summaryMenu) {
+            summaryMenu.textContent = totalQty > 0
+                ? totalQty + ' ერთეული · ' + (totalCents / 100).toFixed(2) + ' ₾'
+                : 'არ არის არჩეული';
+        }
+    };
+
+    menuRows.forEach((row) => {
+        const input = row.querySelector('[data-qty-input]');
+        const minus = row.querySelector('[data-counter-minus]');
+        const plus = row.querySelector('[data-counter-plus]');
+
+        minus.addEventListener('click', () => {
+            input.value = String(Math.max(0, (Number(input.value) || 0) - 1));
+            recalcMenu();
+        });
+
+        plus.addEventListener('click', () => {
+            input.value = String(Math.min(20, (Number(input.value) || 0) + 1));
+            recalcMenu();
+        });
+    });
+
     const summaryDate = document.querySelector('[data-summary-date]');
     const summaryTime = document.querySelector('[data-summary-time]');
     const summaryGuests = document.querySelector('[data-summary-guests]');
@@ -140,15 +189,18 @@
 
     function updateSummary() {
         const d = parseDate(dateInput.value);
+
         summaryDate.textContent = new Intl.DateTimeFormat('ka-GE', {
             day: 'numeric',
             month: 'long',
             year: 'numeric',
             weekday: 'short'
         }).format(d);
+
         summaryTime.textContent = timeInput.value;
         summaryGuests.textContent = guestsInput.value;
         summaryOccasion.textContent = occasionLabels[occasionInput.value] || '—';
+        recalcMenu();
     }
 
     form.addEventListener('submit', (event) => {
@@ -167,5 +219,6 @@
 
     renderCalendar();
     setGuests(guestsInput.value);
+    recalcMenu();
     updateSummary();
 })();
