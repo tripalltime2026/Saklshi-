@@ -1,0 +1,196 @@
+
+/* Approved dashboard visual — exact operations layout */
+.admin-shell{background:#f7f4ef;color:#111820;overflow-x:hidden}
+.admin-shell .admin-app{grid-template-columns:236px minmax(0,1fr);background:#f8f5ef;min-height:100vh}
+.admin-shell .admin-sidebar{
+  width:236px;background:linear-gradient(180deg,#121a22 0%,#0e171f 72%,#101820 100%);
+  padding:18px 8px 0;box-shadow:none;border-right:1px solid rgba(255,255,255,.04);
+}
+.admin-shell .admin-logo-image{height:138px;min-height:138px;padding:0 16px 12px;border:0;justify-content:center}
+.admin-shell .admin-logo-image img{width:172px;height:116px;object-fit:contain;filter:invert(1) grayscale(1) brightness(2);opacity:1}
+.admin-shell .side-nav{padding:4px 0 0;gap:5px}
+.admin-shell .side-nav button,.admin-shell .side-muted{
+  min-height:49px;border-radius:8px;padding:0 14px;color:#f3f4f4;gap:14px;font-size:12px;font-weight:500;
+}
+.admin-shell .side-nav button span,.admin-shell .side-muted b{font-size:20px;width:24px;color:#e8ebed;font-weight:400}
+.admin-shell .side-nav button.active{
+  background:linear-gradient(135deg,#f3ddbb 0%,#e6c18c 100%);color:#14191d;
+  box-shadow:0 5px 18px rgba(227,190,135,.14)
+}
+.admin-shell .side-nav button.active span{color:#151a1d}
+.admin-shell .side-muted i{width:19px;height:19px;font-size:9px;background:#ec4e46}
+.admin-shell .sidebar-quote{
+  position:absolute;left:0;right:0;bottom:0;height:318px;margin:0;padding:0;
+  background:
+    linear-gradient(180deg,rgba(13,22,29,0) 0%,rgba(13,22,29,.08) 16%,rgba(13,22,29,.9) 100%),
+    url("https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=650&q=88") center/cover no-repeat;
+  overflow:hidden;color:transparent;font-size:0
+}
+.admin-shell .sidebar-quote:after{
+  content:"Good Food\A Good People\A Georgian Soul";white-space:pre;position:absolute;left:30px;bottom:30px;
+  color:#f7e7c7;font-family:"Playfair Display",serif;font-style:italic;font-size:25px;line-height:1.42;
+  transform:rotate(-4deg);text-shadow:0 2px 14px rgba(0,0,0,.25)
+}
+.admin-shell .admin-workspace{padding:0 16px 24px;min-width:0;background:#fbf8f2}
+.admin-shell .admin-topbar{
+  min-height:96px;height:96px;padding:0 10px;border-bottom:0;display:flex;align-items:center;justify-content:space-between;
+}
+.admin-shell .admin-topbar h1{font-size:22px;line-height:1.15;margin:0 0 6px;font-weight:800;letter-spacing:-.02em}
+.admin-shell .admin-topbar p{font-size:10px;color:#6f6b64;margin:0}
+.admin-shell .admin-top-actions{gap:13px}
+.admin-shell .admin-top-actions:before{
+  content:"ორშაბათი, 8 სექტემბერი, 2026";font-size:9px;color:#343638;margin-right:10px;white-space:nowrap
+}
+.admin-shell .weather-chip{min-width:90px;display:flex;align-items:center;gap:8px;padding:0;border:0}
+.admin-shell .weather-chip:before{content:"☀";font-size:22px;color:#e6a72f}
+.admin-shell .weather-chip>b{font-size:12px}
+.admin-shell .weather-chip small{font-size:8px;color:#777;margin-left:2px}
+.admin-shell .top-search{height:42px;width:280px;border:0;background:#f3f0eb;border-radius:23px;padding:0 15px}
+.admin-shell .top-search span{font-size:17px;color:#777}
+.admin-shell .top-search input{font-size:9px;color:#777}
+.admin-shell .admin-guest-link{display:none}
+.admin-shell .logout-btn{
+  width:114px;height:43px;border:0;background:transparent;border-radius:24px;padding:0 10px;color:transparent;position:relative
+}
+.admin-shell .logout-btn:before{
+  content:"T";position:absolute;left:4px;top:2px;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  background:#20282e;color:#fff;font-size:14px;font-weight:800;border:2px solid #fff;box-shadow:0 0 0 1px #d7d2ca
+}
+.admin-shell .logout-btn:after{
+  content:"თორნიკე  ·  მენეჯერი  ⌄";position:absolute;left:49px;top:9px;color:#232729;font-size:9px;white-space:nowrap
+}
+
+.admin-shell .kpi-row{grid-template-columns:repeat(4,minmax(0,1fr)) 220px;gap:14px;padding:4px 10px 22px}
+.admin-shell .kpi-card{
+  height:136px;min-height:136px;border:1px solid #e5dfd6;border-radius:12px;background:#fffdf9;
+  padding:25px 21px;box-shadow:0 2px 8px rgba(30,24,18,.02);gap:17px
+}
+.admin-shell .kpi-icon{font-size:31px;color:#ba8c55;margin:0;line-height:1}
+.admin-shell .kpi-card small{font-size:10px;color:#333;font-weight:700}
+.admin-shell .kpi-card strong{font-size:31px;margin:8px 0 5px;color:#090b0c;letter-spacing:-.03em}
+.admin-shell .kpi-card p{font-size:9px;color:#6f7376;margin:6px 0 0}
+.admin-shell .kpi-progress{height:8px;margin:9px 0 1px;background:#ebe4dc}
+.admin-shell .kpi-progress i{background:linear-gradient(90deg,#c89c63,#d8ba8e)}
+.admin-shell .new-booking-btn{
+  height:96px;align-self:center;border-radius:10px;background:linear-gradient(135deg,#eed4ad,#e5bd85);
+  display:flex;align-items:center;justify-content:center;gap:12px;color:#111;font-size:12px;font-weight:800;
+  box-shadow:none
+}
+
+.admin-shell .dashboard-grid{grid-template-columns:minmax(600px,1fr) 320px 305px;gap:14px;align-items:start}
+.admin-shell .reservations-module,.admin-shell .floor-card,.admin-shell .calendar-mini-card,.admin-shell .insight-card{
+  border:1px solid #e4ded5;border-radius:10px;background:#fffdf9;box-shadow:none
+}
+.admin-shell .reservations-module{overflow:hidden}
+.admin-shell .module-tabs{height:58px;padding:8px 10px;gap:0;border-bottom:1px solid #eee8e1;align-items:center}
+.admin-shell .module-tabs button,.admin-shell .module-tabs a{
+  height:40px;min-width:98px;padding:0 21px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px
+}
+.admin-shell .module-tabs .active{background:#111820;color:#fff}
+.admin-shell .module-tabs:after{content:"მომდევნო 7 დღე        ყველა";white-space:pre;font-size:9px;color:#30343a;margin-left:8px}
+.admin-shell .reservation-filters{
+  height:62px;grid-template-columns:1fr 128px 128px 42px;gap:9px;padding:10px;border-bottom:1px solid #ede7de
+}
+.admin-shell .filter-search{height:40px;background:#f7f4ef;border:0;border-radius:8px}
+.admin-shell .filter-search input{font-size:9px}
+.admin-shell .reservation-filters>input,.admin-shell .reservation-filters select{
+  height:40px;border:1px solid #e3ddd4;background:#fff;border-radius:8px;font-size:9px
+}
+.admin-shell .reservation-filters>button{height:40px;border:1px solid #e1dbd2;background:#fff;border-radius:8px}
+.admin-shell .reservations-table-wrap{max-height:690px}
+.admin-shell .reservations-table{min-width:650px}
+.admin-shell .reservations-table th{height:36px;padding:8px 10px;background:#fffdf9;color:#333;font-size:8px;font-weight:700}
+.admin-shell .reservations-table td{height:40px;padding:7px 10px;font-size:8.7px;border-bottom:1px solid #eeeae4}
+.admin-shell .reservations-table td>strong{font-size:9px}
+.admin-shell .guest-name-cell{gap:7px}
+.admin-shell .country-dot{width:20px;height:20px;font-size:8px}
+.admin-shell .guest-name-cell strong{font-size:8.6px}
+.admin-shell .status-pill{padding:5px 9px;font-size:7.6px;border-radius:7px}
+.admin-shell .status-pill.confirmed{background:#e4f4e8;color:#2e784d}
+.admin-shell .status-pill.arrived{background:#e8f1fb;color:#3372b6}
+.admin-shell .status-pill.completed{background:#fff1d8;color:#aa7424}
+.admin-shell .status-pill.cancelled,.admin-shell .status-pill.no_show{background:#fbe5e2;color:#b84b43}
+.admin-shell .row-actions button{background:#f7f5f1;width:28px;height:25px}
+.admin-shell .table-pill{background:transparent;padding:0}
+
+.admin-shell .floor-card{padding:10px}
+.admin-shell .card-toggle{height:50px;padding:4px;background:#f7f2eb;margin-bottom:12px}
+.admin-shell .card-toggle button{font-size:9px}
+.admin-shell .card-toggle .active{background:#efd9b9;color:#2a2117}
+.admin-shell .mini-floor{
+  height:555px;border:1px solid #1d252a;border-radius:2px;background:
+  linear-gradient(rgba(201,195,184,.13) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(201,195,184,.13) 1px,transparent 1px),
+  #f8f5ef;background-size:26px 26px;position:relative
+}
+.admin-shell .mini-floor:before{
+  content:"";position:absolute;left:9px;right:9px;top:8px;height:8px;
+  background:repeating-linear-gradient(90deg,#273138 0 37px,transparent 37px 52px);opacity:.7
+}
+.admin-shell .mini-floor:after{
+  content:"";position:absolute;left:9px;right:9px;top:31%;height:1px;background:#b5aea5;box-shadow:0 194px 0 #b5aea5
+}
+.admin-shell .floor-table{
+  width:44px;height:44px;font-size:8px;border:1px solid #7f817f;box-shadow:0 3px 8px rgba(0,0,0,.08);
+  z-index:3
+}
+.admin-shell .floor-table.free{background:#4fb078;color:#fff}
+.admin-shell .floor-table.busy{background:#df6257;color:#fff}
+.admin-shell .floor-table:nth-of-type(even){border-radius:7px}
+.admin-shell .vip-table{
+  width:86px;height:58px;border-radius:50%;background:#ead3a8;border:1px solid #a98757;color:#1e1f20;font-size:9px;z-index:2
+}
+.admin-shell .vip1{bottom:116px}.admin-shell .vip2{bottom:34px}
+.admin-shell .floor-legend{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;padding:14px 4px 3px;font-size:8px}
+.admin-shell .floor-legend i{width:12px;height:12px}
+.admin-shell .floor-legend:after{content:"● VIP";color:#b89058}
+.admin-shell .floor-legend:before{content:"● დაჯავშნილი";color:#d7d4cf;order:3}
+
+.admin-shell .insights-column{gap:12px}
+.admin-shell .calendar-mini-card{padding:16px 18px}
+.admin-shell .insight-head{font-size:11px;margin-bottom:12px}
+.admin-shell .mini-weekdays span{font-size:7px;color:#777}
+.admin-shell .mini-calendar-grid span{height:30px;font-size:8.5px}
+.admin-shell .mini-calendar-grid .today{background:#111820;color:#fff;box-shadow:0 3px 8px rgba(0,0,0,.15)}
+.admin-shell .insight-card{padding:15px 18px}
+.admin-shell .insight-card h4{font-size:10px;margin-bottom:12px}
+.admin-shell .time-band{display:grid;grid-template-columns:1.1fr .8fr .9fr;gap:4px;padding:9px 0;font-size:8px}
+.admin-shell .time-band strong{text-align:right}
+.admin-shell .status-card{min-height:193px}
+.admin-shell .status-donut{width:90px;height:90px;left:18px;top:53px}
+.admin-shell .status-card ul{margin-left:112px}
+.admin-shell .status-card li{font-size:8px;padding:6px 0}
+.admin-shell .activity-card p{font-size:8px;line-height:1.45}
+.admin-shell .row-detail-card{width:230px;padding:12px;right:9px;top:34px}
+.admin-shell .management-card,.admin-shell .secondary-panel-head{font-size:10px}
+
+@media(max-width:1320px){
+  .admin-shell .dashboard-grid{grid-template-columns:minmax(560px,1fr) 300px}
+  .admin-shell .insights-column{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr)}
+  .admin-shell .kpi-row{grid-template-columns:repeat(4,1fr)}
+  .admin-shell .new-booking-btn{grid-column:1/-1;height:52px}
+}
+@media(max-width:980px){
+  .admin-shell .admin-app{grid-template-columns:78px 1fr}
+  .admin-shell .admin-sidebar{width:78px}
+  .admin-shell .admin-logo-image{height:88px;min-height:88px;padding:5px}
+  .admin-shell .admin-logo-image img{width:64px;height:70px}
+  .admin-shell .sidebar-quote{display:none}
+  .admin-shell .side-nav button,.admin-shell .side-muted{font-size:0;justify-content:center;padding:0}
+  .admin-shell .side-nav button span,.admin-shell .side-muted b{font-size:20px}
+  .admin-shell .admin-top-actions:before{display:none}
+  .admin-shell .top-search{width:210px}
+}
+@media(max-width:680px){
+  .admin-shell .admin-app{display:block}
+  .admin-shell .admin-workspace{padding:0 10px 80px}
+  .admin-shell .admin-topbar{height:auto;min-height:82px;padding:12px 2px}
+  .admin-shell .admin-topbar h1{font-size:18px}
+  .admin-shell .weather-chip,.admin-shell .top-search{display:none}
+  .admin-shell .kpi-row{grid-template-columns:1fr 1fr;padding:4px 0 14px}
+  .admin-shell .kpi-card{height:104px;min-height:104px;padding:14px}
+  .admin-shell .kpi-card strong{font-size:23px}
+  .admin-shell .dashboard-grid{display:block}
+  .admin-shell .floor-card,.admin-shell .calendar-mini-card,.admin-shell .insight-card{margin-top:10px}
+  .admin-shell .insights-column{display:block}
+}
