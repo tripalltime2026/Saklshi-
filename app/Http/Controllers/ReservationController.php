@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BookingSlot;
 use App\Models\DiningTable;
+use App\Models\MenuItem;
 use App\Models\Reservation;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
@@ -25,13 +26,21 @@ class ReservationController extends Controller
 
         try {
             DiningTable::query()->where('active', true)->count();
+            $menu = MenuItem::query()
+                ->where('active', true)
+                ->where('name', '!=', 'აჭარული ხაჭაპური')
+                ->orderBy('category')
+                ->orderBy('name')
+                ->get();
         } catch (Throwable $e) {
             report($e);
             $databaseReady = false;
+            $menu = collect();
         }
 
         return view('reservation', [
             'databaseReady' => $databaseReady,
+            'menu' => $menu,
             'today' => now('Asia/Tbilisi')->toDateString(),
             'maxDate' => now('Asia/Tbilisi')->addDays(90)->toDateString(),
         ]);
@@ -95,6 +104,8 @@ class ReservationController extends Controller
             'birth_date' => ['required', 'date_format:Y-m-d'],
             'marketing_consent' => ['nullable', 'boolean'],
             'notes' => ['nullable', 'string', 'max:500'],
+            'items' => ['nullable', 'array', 'max:100'],
+            'items.*' => ['nullable', 'integer', 'min:0', 'max:20'],
         ]);
 
         [$hour, $minute] = array_map('intval', explode(':', $validated['visit_time']));
@@ -134,8 +145,13 @@ class ReservationController extends Controller
             ]);
         }
 
+        $selectedItems = collect($validated['items'] ?? [])
+            ->map(fn ($qty) => (int) $qty)
+            ->filter(fn ($qty) => $qty > 0)
+            ->take(30);
+
         try {
-            $reservation = DB::transaction(function () use ($validated, $phone, $start, $birthDate) {
+            $reservation = DB::transaction(function () use ($validated, $phone, $start, $birthDate, $selectedItems) {
                 $occupiedIds = BookingSlot::query()
                     ->whereDate('visit_date', $validated['visit_date'])
                     ->where('minute', '>=', $start)
@@ -155,6 +171,19 @@ class ReservationController extends Controller
                 if (! $table) {
                     throw ValidationException::withMessages([
                         'visit_time' => 'არჩეულ დროს ამ რაოდენობის სტუმრებისთვის თავისუფალი მაგიდა აღარ არის. გთხოვთ აირჩიოთ სხვა დრო.',
+                    ]);
+                }
+
+                $menuItems = MenuItem::query()
+                    ->whereIn('id', $selectedItems->keys())
+                    ->where('active', true)
+                    ->where('name', '!=', 'აჭარული ხაჭაპური')
+                    ->get()
+                    ->keyBy('id');
+
+                if ($menuItems->count() !== $selectedItems->count()) {
+                    throw ValidationException::withMessages([
+                        'items' => 'მენიუ შეიცვალა. გთხოვთ განაახლოთ გვერდი და თავიდან აირჩიოთ კერძები.',
                     ]);
                 }
 
@@ -182,6 +211,17 @@ class ReservationController extends Controller
                     'notes' => trim((string) ($validated['notes'] ?? '')) ?: null,
                     'status' => 'confirmed',
                 ]);
+
+                foreach ($selectedItems as $itemId => $quantity) {
+                    $item = $menuItems->get((int) $itemId);
+
+                    $reservation->items()->create([
+                        'menu_item_id' => $item->id,
+                        'name' => $item->name,
+                        'unit_price' => $item->price,
+                        'quantity' => $quantity,
+                    ]);
+                }
 
                 for ($slot = $start; $slot < $start + 120; $slot += 30) {
                     BookingSlot::create([
