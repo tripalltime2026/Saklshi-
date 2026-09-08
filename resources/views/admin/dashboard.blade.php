@@ -139,7 +139,13 @@
                             </thead>
                             <tbody>
                                 @forelse ($reservations as $reservation)
-                                    @php($time = sprintf('%02d:%02d', intdiv($reservation->start_minute, 60), $reservation->start_minute % 60))
+                                    @php
+                                        $time = sprintf(
+                                            '%02d:%02d',
+                                            intdiv((int) $reservation->start_minute, 60),
+                                            ((int) $reservation->start_minute) % 60
+                                        );
+                                    @endphp
                                     <tr>
                                         <td><strong>{{ $time }}</strong><small>{{ $reservation->visit_date->format('d.m') }}</small></td>
                                         <td>
@@ -186,7 +192,9 @@
                                                         <strong>ჯამი: {{ number_format($reservationMenuTotal / 100, 2) }} ₾</strong>
                                                     </div>
                                                 @endif
-                                                @if($reservation->notes)<p>{{ $reservation->notes }}</p>@endif
+                                                @if ($reservation->notes)
+                                                    <p>{{ $reservation->notes }}</p>
+                                                @endif
                                                 @if($reservation->status === 'confirmed')
                                                     <form method="POST" action="{{ route('admin.reservations.status', $reservation) }}">
                                                         @csrf @method('PATCH')
