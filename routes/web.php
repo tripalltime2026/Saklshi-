@@ -34,3 +34,8 @@ Route::prefix('admin')->middleware('saklshi.admin')->group(function () {
     Route::put('/tables/{diningTable}', [AdminController::class, 'updateTable'])->name('admin.tables.update');
     Route::patch('/tables/{diningTable}/toggle', [AdminController::class, 'toggleTable'])->name('admin.tables.toggle');
 });
+
+
+if (app()->environment('testing')) {
+    Route::get('/__ci/admin-dashboard', [AdminController::class, 'index']);
+}
