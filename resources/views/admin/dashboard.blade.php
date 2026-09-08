@@ -199,9 +199,8 @@
                 <label>ადგილები<input required type="number" min="1" max="20" name="capacity" value="4"></label>
                 <label>X (%)<input required type="number" min="8" max="92" name="x" value="50"></label>
                 <label>Y (%)<input required type="number" min="12" max="88" name="y" value="50"></label>
-                <label style="display:flex;align-items:end"><span class="consent"><input type="checkbox" name="active" value="1" checked><span>აქტიური</span></span></label>
+                <label style="display:flex;align-items:end"><span class="consent"><input type="hidden" name="active" value="0"><input type="checkbox" name="active" value="1" checked><span>აქტიური</span></span></label>
             </div>
-            <input type="hidden" name="active" value="0">
             <button class="primary" type="submit">მაგიდის დამატება</button>
         </form>
 
