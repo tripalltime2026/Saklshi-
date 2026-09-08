@@ -3,6 +3,10 @@
 @section('title', 'ჯავშანი დადასტურებულია — ბათუმის სახლში')
 @section('body-class', 'reservation-shell')
 
+@push('head')
+<link rel="stylesheet" href="{{ asset('css/confirmation.css') }}">
+@endpush
+
 @php
     $time = sprintf('%02d:%02d', intdiv($reservation->start_minute, 60), $reservation->start_minute % 60);
     $occasionNames = [
