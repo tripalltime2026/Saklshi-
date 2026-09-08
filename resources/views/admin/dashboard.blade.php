@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'სახლის მართვა — ბათუმის სახლში')
+@section('title', 'ადმინისტრაცია — ბათუმის სახლში')
 @section('body-class', 'admin-shell')
 
 @php
@@ -11,225 +11,332 @@
         'cancelled' => 'გაუქმებული',
         'no_show' => 'არ გამოცხადდა',
     ];
+    $occasionNames = [
+        'banquet' => 'ბანკეტი',
+        'birthday' => 'დაბადების დღე',
+        'friends' => 'მეგობრები',
+        'couple' => 'წყვილი',
+    ];
+    $todayCarbon = now('Asia/Tbilisi');
+    $monthStart = $todayCarbon->copy()->startOfMonth();
+    $daysInMonth = $todayCarbon->daysInMonth;
+    $startDow = (int) $monthStart->isoWeekday();
 @endphp
 
 @section('content')
-<header class="top">
-    <a class="brand" href="{{ route('admin.dashboard') }}">
-        <span class="brandmark">⌂</span>
-        <span>სახლის მართვა<small>ბათუმის სახლში</small></span>
-    </a>
-    <a class="admin-link" style="margin-left:auto" href="{{ route('reservation.index') }}">დაჯავშნის გვერდი</a>
-    <form method="POST" action="{{ route('admin.logout') }}" style="margin:0">
-        @csrf
-        <button class="admin-link" style="background:none;border:0" type="submit">გასვლა</button>
-    </form>
-</header>
+<div class="admin-app">
+    <aside class="admin-sidebar">
+        <a class="admin-logo" href="{{ route('admin.dashboard') }}">
+            <span class="admin-logo-mark">⌂</span>
+            <span><strong>ბათუმის სახლში</strong><small>RESTAURANT · BATUMI</small></span>
+        </a>
 
-<main class="admin-main">
-    <div class="admin-headline">
-        <div>
-            <span class="eyebrow">LIVE OPERATIONS</span>
-            <h1>სტუმრები და ჯავშნები</h1>
+        <nav class="side-nav">
+            <button class="active" type="button" data-admin-tab="bookings"><span>▣</span> დეშბორდი</button>
+            <button type="button" data-admin-tab="bookings"><span>▤</span> რეზერვაციები</button>
+            <button type="button" data-admin-tab="tables"><span>⌘</span> მაგიდების რუკა</button>
+            <button type="button" data-admin-tab="guests"><span>♟</span> სტუმრები</button>
+            <span class="side-muted"><b>◫</b> შეტყობინებები <i>3</i></span>
+            <span class="side-muted"><b>➤</b> მარკეტინგი</span>
+            <span class="side-muted"><b>▥</b> ანგარიშები</span>
+            <button type="button" data-admin-tab="menu"><span>♨</span> მენიუ</button>
+            <span class="side-muted"><b>♟</b> გუნდი</span>
+            <span class="side-muted"><b>⚙</b> პარამეტრები</span>
+        </nav>
+
+        <div class="sidebar-quote">
+            <span>ქართული გემო</span>
+            <span>ქართული ხმა</span>
+            <strong>ქართული სული</strong>
         </div>
-        <span class="muted">{{ now('Asia/Tbilisi')->format('Y-m-d H:i') }} · ბათუმი</span>
-    </div>
+    </aside>
 
-    @if (session('success'))
-        <div class="flash">{{ session('success') }}</div>
-    @endif
-
-    @if ($errors->any())
-        <div class="error">
-            @foreach ($errors->all() as $error)
-                <div>{{ $error }}</div>
-            @endforeach
-        </div>
-    @endif
-
-    <div class="stats">
-        <div class="stat"><span>დღევანდელი ჯავშნები</span><strong>{{ $todayCount }}</strong></div>
-        <div class="stat"><span>სტუმრების ბაზა</span><strong>{{ $guests->count() }}</strong></div>
-        <div class="stat"><span>განმეორებითი სტუმრები</span><strong>{{ $repeatGuests }}</strong></div>
-    </div>
-
-    <nav class="admin-tabs">
-        <button type="button" class="active" data-admin-tab="bookings">ჯავშნები</button>
-        <button type="button" data-admin-tab="guests">სტუმრების ბაზა</button>
-        <button type="button" data-admin-tab="menu">მენიუ</button>
-        <button type="button" data-admin-tab="tables">დარბაზი</button>
-    </nav>
-
-    <section class="admin-panel" data-admin-panel="bookings">
-        <form method="GET" action="{{ route('admin.dashboard') }}" class="admin-card">
-            <div class="fields">
-                <label>
-                    ძიება
-                    <input name="q" value="{{ $query }}" placeholder="სახელი, გვარი, ტელეფონი ან კოდი">
-                </label>
-                <label>
-                    თარიღი
-                    <input type="date" name="date" value="{{ $date }}">
-                </label>
+    <main class="admin-workspace">
+        <header class="admin-topbar">
+            <div>
+                <h1>კეთილი დღე!</h1>
+                <p>დღეს გაქვთ <strong>{{ $todayCount }}</strong> აქტიური რეზერვაცია.</p>
             </div>
-            <div class="actions">
-                <button class="primary" type="submit">გაფილტვრა</button>
-                <a class="link-button" href="{{ route('admin.dashboard') }}">გასუფთავება</a>
+            <div class="admin-top-actions">
+                <span class="weather-chip">☀ <b>24°C</b><small>ბათუმი</small></span>
+                <form class="top-search" method="GET" action="{{ route('admin.dashboard') }}">
+                    <span>⌕</span>
+                    <input name="q" value="{{ $query }}" placeholder="სტუმრის ძიება (სახელი, ტელეფონი...)">
+                </form>
+                <a class="admin-guest-link" href="{{ route('reservation.index') }}" target="_blank">სტუმრის გვერდი ↗</a>
+                <form method="POST" action="{{ route('admin.logout') }}">
+                    @csrf
+                    <button class="logout-btn" type="submit">გასვლა</button>
+                </form>
             </div>
-        </form>
+        </header>
 
-        @forelse ($reservations as $reservation)
-            @php($time = sprintf('%02d:%02d', intdiv($reservation->start_minute, 60), $reservation->start_minute % 60))
-            <article class="admin-card">
-                <header>
-                    <strong>{{ $reservation->first_name }} {{ $reservation->last_name }}</strong>
-                    <span class="badge {{ $reservation->status }}">{{ $statusNames[$reservation->status] ?? $reservation->status }}</span>
-                </header>
-                <p>{{ $reservation->visit_date->format('Y-m-d') }} · {{ $time }} · {{ $reservation->table?->name }} · {{ $reservation->guests }} სტუმარი</p>
-                <p><a href="tel:{{ $reservation->phone }}">{{ $reservation->phone }}</a> · დაბადების დღე: {{ $reservation->birth_day }}/{{ $reservation->birth_month }}</p>
-                <p>კოდი: <strong>{{ $reservation->reference }}</strong></p>
+        @if (session('success'))
+            <div class="admin-flash">{{ session('success') }}</div>
+        @endif
+        @if ($errors->any())
+            <div class="admin-error">
+                @foreach ($errors->all() as $error)<div>{{ $error }}</div>@endforeach
+            </div>
+        @endif
 
-                @if ($reservation->items->isNotEmpty())
-                    <p>
-                        მენიუ:
-                        @foreach ($reservation->items as $item)
-                            {{ $item->name }} × {{ $item->quantity }}{{ ! $loop->last ? ' · ' : '' }}
+        <section class="kpi-row">
+            <article class="kpi-card">
+                <span class="kpi-icon">▣</span>
+                <div><small>დღის რეზერვაციები</small><strong>{{ $todayCount }}</strong><p>აქტიური ჯავშნები</p></div>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-icon">♟</span>
+                <div><small>სტუმრების რაოდენობა</small><strong>{{ $todayGuestCount }}</strong><p>დღევანდელი სტუმრები</p></div>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-icon">▥</span>
+                <div><small>დატვირთულობა</small><strong>{{ $occupancyPercent }}%</strong><div class="kpi-progress"><i style="width:{{ $occupancyPercent }}%"></i></div><p>{{ $restaurantCapacity }} ადგილი</p></div>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-icon">₾</span>
+                <div><small>წინასწარი შეკვეთები</small><strong>₾ {{ number_format($todayPreorderRevenue / 100, 2) }}</strong><p>დღევანდელი მენიუს წინასწარი ჯამი</p></div>
+            </article>
+            <button class="new-booking-btn" type="button" data-admin-tab="bookings">＋ ახალი რეზერვაცია</button>
+        </section>
+
+        <section class="admin-panel" data-admin-panel="bookings">
+            <div class="dashboard-grid">
+                <section class="reservations-module">
+                    <div class="module-tabs">
+                        <button class="active" type="button">დღეს</button>
+                        <a href="{{ route('admin.dashboard', ['date' => now('Asia/Tbilisi')->addDay()->toDateString()]) }}">ხვალ</a>
+                        <a href="{{ route('admin.dashboard') }}">ყველა</a>
+                    </div>
+
+                    <form class="reservation-filters" method="GET" action="{{ route('admin.dashboard') }}">
+                        <div class="filter-search"><span>⌕</span><input name="q" value="{{ $query }}" placeholder="რეზერვაციის ძიება..."></div>
+                        <input type="date" name="date" value="{{ $date ?: $today }}">
+                        <select name="status" disabled><option>ყველა სტატუსი</option></select>
+                        <button type="submit">ფილტრი</button>
+                    </form>
+
+                    <div class="reservations-table-wrap">
+                        <table class="reservations-table">
+                            <thead>
+                                <tr>
+                                    <th>დრო</th>
+                                    <th>სტუმარი</th>
+                                    <th>სტუმრები</th>
+                                    <th>მაგიდა</th>
+                                    <th>მიზეზი</th>
+                                    <th>სტატუსი</th>
+                                    <th>წყარო</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($reservations as $reservation)
+                                    @php($time = sprintf('%02d:%02d', intdiv($reservation->start_minute, 60), $reservation->start_minute % 60))
+                                    <tr>
+                                        <td><strong>{{ $time }}</strong><small>{{ $reservation->visit_date->format('d.m') }}</small></td>
+                                        <td>
+                                            <div class="guest-name-cell">
+                                                <span class="country-dot">{{ mb_substr($reservation->first_name, 0, 1) }}</span>
+                                                <div><strong>{{ $reservation->first_name }} {{ $reservation->last_name }}</strong><small>{{ $reservation->phone }}</small></div>
+                                            </div>
+                                        </td>
+                                        <td>{{ $reservation->guests }}</td>
+                                        <td><span class="table-pill">{{ $reservation->table?->name ?? '—' }}</span></td>
+                                        <td>{{ $occasionNames[$reservation->occasion] ?? '—' }}</td>
+                                        <td><span class="status-pill {{ $reservation->status }}">{{ $statusNames[$reservation->status] ?? $reservation->status }}</span></td>
+                                        <td>{{ $reservation->source ?? 'Website' }}</td>
+                                        <td class="row-actions">
+                                            @if ($reservation->status === 'confirmed')
+                                                <form method="POST" action="{{ route('admin.reservations.status', $reservation) }}">
+                                                    @csrf @method('PATCH')
+                                                    <input type="hidden" name="status" value="arrived">
+                                                    <button title="მოსულია" type="submit">✓</button>
+                                                </form>
+                                            @elseif ($reservation->status === 'arrived')
+                                                <form method="POST" action="{{ route('admin.reservations.status', $reservation) }}">
+                                                    @csrf @method('PATCH')
+                                                    <input type="hidden" name="status" value="completed">
+                                                    <button title="დასრულებული" type="submit">✓</button>
+                                                </form>
+                                            @endif
+                                            <button type="button" class="more-btn" title="დეტალები" data-row-detail>•••</button>
+                                            <div class="row-detail-card" hidden>
+                                                <strong>{{ $reservation->reference }}</strong>
+                                                <p>დაბადება: {{ $reservation->birth_day }}/{{ $reservation->birth_month }}{{ $reservation->birth_year ? '/'.$reservation->birth_year : '' }}</p>
+                                                @if($reservation->notes)<p>{{ $reservation->notes }}</p>@endif
+                                                @if($reservation->status === 'confirmed')
+                                                    <form method="POST" action="{{ route('admin.reservations.status', $reservation) }}">
+                                                        @csrf @method('PATCH')
+                                                        <input type="hidden" name="status" value="cancelled">
+                                                        <button class="danger-link" type="submit">გაუქმება</button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="8" class="empty-row">შერჩეული პირობებით რეზერვაციები არ მოიძებნა.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <aside class="operations-column">
+                    <section class="floor-card">
+                        <div class="card-toggle"><button class="active">სართულის გეგმა</button><button>სია</button></div>
+                        <div class="mini-floor">
+                            <div class="floor-window-line"></div>
+                            @foreach($tables as $table)
+                                <div class="floor-table {{ in_array($table->id, $reservedTableIds, true) ? 'busy' : 'free' }}"
+                                     style="left:{{ $table->x }}%;top:{{ $table->y }}%;">
+                                    <span>{{ $table->name }}</span><small>{{ $table->capacity }}</small>
+                                </div>
+                            @endforeach
+                            <div class="vip-table vip1">VIP1</div>
+                            <div class="vip-table vip2">VIP2</div>
+                        </div>
+                        <div class="floor-legend">
+                            <span><i class="free-dot"></i>თავისუფალი</span>
+                            <span><i class="busy-dot"></i>დაკავებული</span>
+                            <span><i class="vip-dot"></i>VIP</span>
+                        </div>
+                    </section>
+                </aside>
+
+                <aside class="insights-column">
+                    <section class="calendar-mini-card">
+                        <div class="insight-head"><strong>{{ $todayCarbon->translatedFormat('F Y') }}</strong><span>›</span></div>
+                        <div class="mini-weekdays"><span>ორშ</span><span>სამ</span><span>ოთხ</span><span>ხუთ</span><span>პარ</span><span>შაბ</span><span>კვი</span></div>
+                        <div class="mini-calendar-grid">
+                            @for($blank = 1; $blank < $startDow; $blank++)<span></span>@endfor
+                            @for($day = 1; $day <= $daysInMonth; $day++)
+                                <span class="{{ $day === (int)$todayCarbon->day ? 'today' : '' }}">{{ $day }}</span>
+                            @endfor
+                        </div>
+                    </section>
+
+                    <section class="insight-card">
+                        <h4>ამ დღის ჯავშნები</h4>
+                        <div class="time-band"><span>12:00–16:00</span><strong>{{ $todayReservations = $reservations->filter(fn($r) => $r->visit_date->format('Y-m-d') === $today && $r->start_minute < 960)->sum('guests') }} სტუმარი</strong></div>
+                        <div class="time-band"><span>16:00–19:00</span><strong>{{ $reservations->filter(fn($r) => $r->visit_date->format('Y-m-d') === $today && $r->start_minute >= 960 && $r->start_minute < 1140)->sum('guests') }} სტუმარი</strong></div>
+                        <div class="time-band"><span>19:00–23:00</span><strong>{{ $reservations->filter(fn($r) => $r->visit_date->format('Y-m-d') === $today && $r->start_minute >= 1140)->sum('guests') }} სტუმარი</strong></div>
+                    </section>
+
+                    <section class="insight-card status-card">
+                        <h4>სტატუსების გადანაწილება</h4>
+                        <div class="status-donut">
+                            <div class="donut-ring"></div>
+                            <strong>{{ $todayCount }}<small>სულ</small></strong>
+                        </div>
+                        <ul>
+                            <li><i class="confirmed-dot"></i>დადასტურებული <b>{{ $statusBreakdown['confirmed'] ?? 0 }}</b></li>
+                            <li><i class="arrived-dot"></i>მოსულია <b>{{ $statusBreakdown['arrived'] ?? 0 }}</b></li>
+                            <li><i class="completed-dot"></i>დასრულებული <b>{{ $statusBreakdown['completed'] ?? 0 }}</b></li>
+                            <li><i class="cancelled-dot"></i>გაუქმებული <b>{{ $statusBreakdown['cancelled'] ?? 0 }}</b></li>
+                        </ul>
+                    </section>
+
+                    <section class="insight-card activity-card">
+                        <h4>ბოლო აქტივობა</h4>
+                        @foreach($reservations->take(3) as $reservation)
+                            <p><strong>{{ sprintf('%02d:%02d', intdiv($reservation->start_minute, 60), $reservation->start_minute % 60) }}</strong> {{ $reservation->first_name }} {{ $reservation->last_name }} — {{ $reservation->guests }} სტუმარი</p>
                         @endforeach
-                        · <strong>{{ number_format($reservation->items->sum(fn ($i) => $i->unit_price * $i->quantity) / 100, 2) }} ₾</strong>
-                    </p>
-                @endif
+                    </section>
+                </aside>
+            </div>
+        </section>
 
-                @if ($reservation->notes)
-                    <p>სურვილი: {{ $reservation->notes }}</p>
-                @endif
+        <section class="admin-panel" data-admin-panel="guests" hidden>
+            <div class="secondary-panel-head"><div><h2>სტუმრების ბაზა</h2><p>CRM მონაცემები და განმეორებითი ვიზიტები</p></div><span>{{ $guests->count() }} სტუმარი</span></div>
+            <div class="cards-grid">
+                @forelse($guests as $guest)
+                    <article class="management-card">
+                        <h3>{{ $guest->first_name }} {{ $guest->last_name }}</h3>
+                        <p>{{ $guest->phone }}</p>
+                        <p>დაბადება: {{ $guest->birth_day }}/{{ $guest->birth_month }}{{ $guest->birth_year ? '/'.$guest->birth_year : '' }}</p>
+                        <div class="management-meta"><span>{{ $guest->visits }} ვიზიტი</span><span>{{ $guest->marketing_consent ? 'CRM ✓' : 'CRM —' }}</span></div>
+                    </article>
+                @empty
+                    <div class="management-card">სტუმრების ბაზა ჯერ ცარიელია.</div>
+                @endforelse
+            </div>
+        </section>
 
-                <div class="actions">
-                    @if ($reservation->status === 'confirmed')
-                        @foreach (['arrived' => 'მოსულია', 'cancelled' => 'გაუქმება', 'no_show' => 'არ გამოცხადდა'] as $status => $label)
-                            <form method="POST" action="{{ route('admin.reservations.status', $reservation) }}">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="status" value="{{ $status }}">
-                                <button type="submit">{{ $label }}</button>
+        <section class="admin-panel" data-admin-panel="menu" hidden>
+            <div class="secondary-panel-head"><div><h2>მენიუს მართვა</h2><p>კერძები, კატეგორიები და ფასები</p></div></div>
+            <div class="management-layout">
+                <form class="management-card management-form" method="POST" action="{{ route('admin.menu.store') }}">
+                    @csrf
+                    <h3>ახალი კერძი</h3>
+                    <label>სახელი<input required name="name" placeholder="კერძის სახელი"></label>
+                    <label>კატეგორია<input required name="category" placeholder="მაგ. ცხელი კერძები"></label>
+                    <label>ფასი (₾)<input required type="number" min="0" max="10000" step="0.01" name="price_gel"></label>
+                    <input type="hidden" name="active" value="0">
+                    <label class="check-line"><input type="checkbox" name="active" value="1" checked> აქტიური</label>
+                    <button class="management-primary" type="submit">დამატება</button>
+                </form>
+                <div class="cards-grid">
+                    @foreach($menu as $item)
+                        <article class="management-card">
+                            <form method="POST" action="{{ route('admin.menu.update', $item) }}">
+                                @csrf @method('PUT')
+                                <label>სახელი<input required name="name" value="{{ $item->name }}"></label>
+                                <label>კატეგორია<input required name="category" value="{{ $item->category }}"></label>
+                                <label>ფასი (₾)<input required type="number" step="0.01" name="price_gel" value="{{ number_format($item->price / 100, 2, '.', '') }}"></label>
+                                <input type="hidden" name="active" value="{{ $item->active ? 1 : 0 }}">
+                                <button type="submit">შენახვა</button>
                             </form>
-                        @endforeach
-                    @elseif ($reservation->status === 'arrived')
-                        <form method="POST" action="{{ route('admin.reservations.status', $reservation) }}">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="status" value="completed">
-                            <button type="submit">დასრულებული</button>
-                        </form>
-                    @endif
+                            <form method="POST" action="{{ route('admin.menu.toggle', $item) }}">
+                                @csrf @method('PATCH')
+                                <button class="muted-action" type="submit">{{ $item->active ? 'დამალვა' : 'გამოჩენა' }}</button>
+                            </form>
+                        </article>
+                    @endforeach
                 </div>
-            </article>
-        @empty
-            <div class="admin-card admin-empty">შერჩეული პირობებით ჯავშნები არ მოიძებნა.</div>
-        @endforelse
-    </section>
-
-    <section class="admin-panel" data-admin-panel="guests" hidden>
-        <div class="admin-card">
-            <p class="muted">ვიზიტებში ითვლება „მოსულია“ და „დასრულებული“ სტატუსები. ბაზა ჯგუფდება ტელეფონის ნომრით.</p>
-        </div>
-
-        @forelse ($guests as $guest)
-            <article class="admin-card">
-                <header>
-                    <strong>{{ $guest->first_name }} {{ $guest->last_name }}</strong>
-                    <span class="badge">{{ $guest->visits }} ვიზიტი</span>
-                </header>
-                <p><a href="tel:{{ $guest->phone }}">{{ $guest->phone }}</a> · დაბადების დღე: {{ $guest->birth_day }}/{{ $guest->birth_month }}</p>
-                <p>ბოლო ჯავშანი: {{ optional($guest->last_visit)->format('Y-m-d') ?? $guest->last_visit }}</p>
-                <p>პერსონალურ შეთავაზებებზე თანხმობა: {{ $guest->marketing_consent ? 'მიღებულია' : 'არ არის მიღებული' }}</p>
-            </article>
-        @empty
-            <div class="admin-card admin-empty">პირველი ჯავშნის შემდეგ აქ გამოჩნდება სტუმრების ბაზა.</div>
-        @endforelse
-    </section>
-
-    <section class="admin-panel" data-admin-panel="menu" hidden>
-        <form class="admin-card admin-form" method="POST" action="{{ route('admin.menu.store') }}">
-            @csrf
-            <h3>ახალი კერძი</h3>
-            <label>სახელი<input required name="name" placeholder="მაგ. აჭარული ხაჭაპური"></label>
-            <div class="fields">
-                <label>კატეგორია<input required name="category" placeholder="ცხელი კერძები"></label>
-                <label>ფასი (₾)<input required type="number" min="0" max="10000" step="0.01" name="price_gel"></label>
             </div>
-            <input type="hidden" name="active" value="0">
-            <label class="consent"><input type="checkbox" name="active" value="1" checked><span>აქტიური — გამოჩნდეს დაჯავშნის გვერდზე</span></label>
-            <button class="primary" type="submit">კერძის დამატება</button>
-        </form>
+        </section>
 
-        @foreach ($menu as $item)
-            <article class="admin-card">
-                <form method="POST" action="{{ route('admin.menu.update', $item) }}">
+        <section class="admin-panel" data-admin-panel="tables" hidden>
+            <div class="secondary-panel-head"><div><h2>მაგიდების რუკა</h2><p>დარბაზის 2D მართვა და ტევადობა</p></div></div>
+            <div class="management-layout">
+                <form class="management-card management-form" method="POST" action="{{ route('admin.tables.store') }}">
                     @csrf
-                    @method('PUT')
-                    <div class="fields">
-                        <label>სახელი<input required name="name" value="{{ $item->name }}"></label>
-                        <label>კატეგორია<input required name="category" value="{{ $item->category }}"></label>
-                    </div>
-                    <div class="fields">
-                        <label>ფასი (₾)<input required type="number" min="0" max="10000" step="0.01" name="price_gel" value="{{ number_format($item->price / 100, 2, '.', '') }}"></label>
-                        <label>
-                            სტატუსი
-                            <input value="{{ $item->active ? 'აქტიური' : 'დამალული' }}" disabled>
-                        </label>
-                    </div>
-                    <input type="hidden" name="active" value="{{ $item->active ? 1 : 0 }}">
-                    <button type="submit">ცვლილებების შენახვა</button>
+                    <h3>ახალი მაგიდა</h3>
+                    <label>სახელი<input required name="name" placeholder="მაგიდა 13"></label>
+                    <label>ადგილები<input required type="number" min="1" max="20" name="capacity" value="4"></label>
+                    <label>X (%)<input required type="number" min="8" max="92" name="x" value="50"></label>
+                    <label>Y (%)<input required type="number" min="12" max="88" name="y" value="50"></label>
+                    <input type="hidden" name="active" value="0">
+                    <label class="check-line"><input type="checkbox" name="active" value="1" checked> აქტიური</label>
+                    <button class="management-primary" type="submit">დამატება</button>
                 </form>
-                <form method="POST" action="{{ route('admin.menu.toggle', $item) }}" style="margin-top:10px">
-                    @csrf
-                    @method('PATCH')
-                    <button type="submit">{{ $item->active ? 'დამალვა' : 'გამოჩენა' }}</button>
-                </form>
-            </article>
-        @endforeach
-    </section>
-
-    <section class="admin-panel" data-admin-panel="tables" hidden>
-        <form class="admin-card admin-form" method="POST" action="{{ route('admin.tables.store') }}">
-            @csrf
-            <h3>ახალი მაგიდა</h3>
-            <label>სახელი<input required name="name" placeholder="მაგიდა 13"></label>
-            <div class="table-editor-grid">
-                <label>ადგილები<input required type="number" min="1" max="20" name="capacity" value="4"></label>
-                <label>X (%)<input required type="number" min="8" max="92" name="x" value="50"></label>
-                <label>Y (%)<input required type="number" min="12" max="88" name="y" value="50"></label>
-                <label style="display:flex;align-items:end"><span class="consent"><input type="hidden" name="active" value="0"><input type="checkbox" name="active" value="1" checked><span>აქტიური</span></span></label>
+                <div class="cards-grid">
+                    @foreach($tables as $table)
+                        <article class="management-card">
+                            <form method="POST" action="{{ route('admin.tables.update', $table) }}">
+                                @csrf @method('PUT')
+                                <label>სახელი<input required name="name" value="{{ $table->name }}"></label>
+                                <label>ადგილები<input required type="number" min="1" max="20" name="capacity" value="{{ $table->capacity }}"></label>
+                                <div class="two-fields">
+                                    <label>X<input required type="number" min="8" max="92" name="x" value="{{ $table->x }}"></label>
+                                    <label>Y<input required type="number" min="12" max="88" name="y" value="{{ $table->y }}"></label>
+                                </div>
+                                <input type="hidden" name="active" value="{{ $table->active ? 1 : 0 }}">
+                                <button type="submit">შენახვა</button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.tables.toggle', $table) }}">
+                                @csrf @method('PATCH')
+                                <button class="muted-action" type="submit">{{ $table->active ? 'დამალვა' : 'გამოჩენა' }}</button>
+                            </form>
+                        </article>
+                    @endforeach
+                </div>
             </div>
-            <button class="primary" type="submit">მაგიდის დამატება</button>
-        </form>
-
-        @foreach ($tables as $table)
-            <article class="admin-card">
-                <form method="POST" action="{{ route('admin.tables.update', $table) }}">
-                    @csrf
-                    @method('PUT')
-                    <div class="fields">
-                        <label>სახელი<input required name="name" value="{{ $table->name }}"></label>
-                        <label>ადგილები<input required type="number" min="1" max="20" name="capacity" value="{{ $table->capacity }}"></label>
-                    </div>
-                    <div class="fields">
-                        <label>X (%)<input required type="number" min="8" max="92" name="x" value="{{ $table->x }}"></label>
-                        <label>Y (%)<input required type="number" min="12" max="88" name="y" value="{{ $table->y }}"></label>
-                    </div>
-                    <input type="hidden" name="active" value="{{ $table->active ? 1 : 0 }}">
-                    <p class="muted">სტატუსი: {{ $table->active ? 'აქტიური' : 'დამალული' }}</p>
-                    <button type="submit">ცვლილებების შენახვა</button>
-                </form>
-                <form method="POST" action="{{ route('admin.tables.toggle', $table) }}" style="margin-top:10px">
-                    @csrf
-                    @method('PATCH')
-                    <button type="submit">{{ $table->active ? 'დამალვა' : 'გამოჩენა' }}</button>
-                </form>
-            </article>
-        @endforeach
-    </section>
-</main>
+        </section>
+    </main>
+</div>
 @endsection
 
 @push('scripts')
