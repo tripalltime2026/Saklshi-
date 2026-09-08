@@ -13,12 +13,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Laravel Cloud may inject database-backed cache/session defaults.
-        // This app does not require those database infrastructure tables,
-        // so pin these stores at runtime to prevent 500 errors.
+        // Pin infrastructure-free stores at runtime so Laravel Cloud injected
+        // variables cannot switch cache/session back to database-backed drivers.
         config([
-            'cache.default' => 'file',
-            'session.driver' => 'file',
+            'cache.default' => 'array',
+            'session.driver' => 'cookie',
+            'session.encrypt' => true,
             'queue.default' => 'sync',
         ]);
 
