@@ -201,10 +201,11 @@
         summaryGuests.textContent = guestsInput.value;
         summaryOccasion.textContent = occasionLabels[occasionInput.value] || '—';
         recalcMenu();
+        refreshAvailability();
     }
 
     form.addEventListener('submit', (event) => {
-        if (page.dataset.databaseReady !== '1') {
+        if (page.dataset.databaseReady !== '1' || availableCount === null || availableCount < 1 || submit.disabled) {
             event.preventDefault();
             return;
         }
@@ -215,6 +216,54 @@
             firstInvalid.focus();
             firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+    });
+
+    const availability = document.createElement('p');
+    availability.setAttribute('role', 'status');
+    availability.dataset.availability = '';
+    const submit = document.querySelector('.summary-submit');
+    submit.before(availability);
+    let availableCount = null;
+    let availabilityController;
+    let availabilityKey = '';
+    let lastChecked = 0;
+    async function refreshAvailability() {
+        if (page.dataset.databaseReady !== '1' || document.hidden) return;
+        const [hour, minute] = timeInput.value.split(':').map(Number);
+        const params = new URLSearchParams({date: dateInput.value, start: String(hour * 60 + minute), guests: guestsInput.value});
+        const key = params.toString();
+        if (key === availabilityKey && Date.now() - lastChecked < 4500) return;
+        availabilityKey = key;
+        lastChecked = Date.now();
+        if (availabilityController) availabilityController.abort();
+        const controller = new AbortController();
+        availabilityController = controller;
+        const timeout = setTimeout(() => controller.abort(), 10000);
+        if (availableCount === null) submit.disabled = true;
+        try {
+            const response = await fetch('/api/availability?' + key, {cache: 'no-store', headers: {Accept: 'application/json'}, signal: controller.signal});
+            if (!response.ok) throw new Error('availability');
+            const data = await response.json();
+            if (availabilityController !== controller) return;
+            availableCount = Number(data.available);
+            const when = parseDate(dateInput.value);
+            when.setHours(hour, minute, 0, 0);
+            // Use the server's Tbilisi time; visitors can be in another timezone.
+            const past = dateInput.value + ' ' + timeInput.value <= data.local_now;
+            submit.disabled = availableCount < 1 || past;
+            availability.textContent = past ? 'აირჩიეთ მომავალი დრო.' : availableCount > 0
+                ? 'თავისუფალია ' + availableCount + ' შესაბამისი მაგიდა · სულ ' + data.free_seats + ' თავისუფალი ადგილი'
+                : 'არჩეულ დროს შესაბამისი მაგიდა აღარ არის. აირჩიეთ სხვა დრო.';
+        } catch (error) {
+            if (availabilityController !== controller) return;
+            availableCount = null;
+            submit.disabled = true;
+            availability.textContent = 'თავისუფალი ადგილები ვერ შემოწმდა. კავშირს ხელახლა ვამოწმებთ.';
+        } finally { clearTimeout(timeout); }
+    }
+    setInterval(refreshAvailability, 5000);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) { lastChecked = 0; refreshAvailability(); }
     });
 
     renderCalendar();

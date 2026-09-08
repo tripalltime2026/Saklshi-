@@ -31,16 +31,10 @@
         </a>
 
         <nav class="side-nav">
-            <button class="active" type="button" data-admin-tab="bookings"><span>▣</span> დეშბორდი</button>
             <button type="button" data-admin-tab="bookings"><span>▤</span> რეზერვაციები</button>
             <button type="button" data-admin-tab="tables"><span>⌘</span> მაგიდების რუკა</button>
             <button type="button" data-admin-tab="guests"><span>♟</span> სტუმრები</button>
-            <span class="side-muted"><b>◫</b> შეტყობინებები <i>3</i></span>
-            <span class="side-muted"><b>➤</b> მარკეტინგი</span>
-            <span class="side-muted"><b>▥</b> ანგარიშები</span>
             <button type="button" data-admin-tab="menu"><span>♨</span> მენიუ</button>
-            <span class="side-muted"><b>♟</b> გუნდი</span>
-            <span class="side-muted"><b>⚙</b> პარამეტრები</span>
         </nav>
 
         <div class="sidebar-quote">
@@ -57,7 +51,7 @@
                 <p>დღეს გაქვთ <strong>{{ $todayCount }}</strong> აქტიური რეზერვაცია.</p>
             </div>
             <div class="admin-top-actions">
-                <span class="weather-chip">☀ <b>24°C</b><small>ბათუმი</small></span>
+                <span class="live-status" role="status" data-live-status>ავტომატური განახლება · 5 წამი</span>
                 <form class="top-search" method="GET" action="{{ route('admin.dashboard') }}">
                     <span>⌕</span>
                     <input name="q" value="{{ $query }}" placeholder="სტუმრის ძიება (სახელი, ტელეფონი...)">
@@ -98,28 +92,48 @@
             </article>
             <article class="kpi-card">
                 <span class="kpi-icon">▥</span>
-                <div><small>დატვირთულობა</small><strong>{{ $occupancyPercent }}%</strong><div class="kpi-progress"><i style="width:{{ $occupancyPercent }}%"></i></div><p>{{ $restaurantCapacity }} ადგილი</p></div>
+                <div><small>არჩეული დროის დატვირთულობა</small><strong>{{ $occupancyPercent }}%</strong><div class="kpi-progress"><i style="width:{{ $occupancyPercent }}%"></i></div><p>{{ $restaurantCapacity }} ადგილი</p></div>
             </article>
             <article class="kpi-card">
                 <span class="kpi-icon">₾</span>
                 <div><small>წინასწარი შეკვეთები</small><strong>₾ {{ number_format($todayPreorderRevenue / 100, 2) }}</strong><p>დღევანდელი მენიუს წინასწარი ჯამი</p></div>
             </article>
-            <button class="new-booking-btn" type="button" data-admin-tab="bookings">＋ ახალი რეზერვაცია</button>
+            <a class="new-booking-btn" href="{{ route('reservation.index') }}" target="_blank" rel="noopener">＋ ახალი რეზერვაცია</a>
         </section>
 
+        <section class="slot-summary">
+            <form method="GET" action="{{ route('admin.dashboard') }}">
+                <label>რუკის თარიღი <input type="date" name="date" value="{{ $mapDate }}" required></label>
+                <label>დრო <select name="start">
+                    @for ($slot = 720; $slot <= 1320; $slot += 30)
+                        <option value="{{ $slot }}" @selected($mapStart === $slot)>{{ sprintf('%02d:%02d', intdiv($slot, 60), $slot % 60) }}</option>
+                    @endfor
+                </select></label>
+                <button type="submit">ჩვენება</button>
+            </form>
+            <strong data-free-capacity>{{ $freeTables }} თავისუფალი მაგიდა · {{ $freeSeats }} ადგილი</strong>
+            <span>არჩეული დროიდან 2 საათით</span>
+        </section>
         <section class="admin-panel" data-admin-panel="bookings">
             <div class="dashboard-grid">
                 <section class="reservations-module">
                     <div class="module-tabs">
-                        <button class="active" type="button">დღეს</button>
+                        <a class="{{ ! $allDates && $mapDate === $today ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">დღეს</a>
                         <a href="{{ route('admin.dashboard', ['date' => now('Asia/Tbilisi')->addDay()->toDateString()]) }}">ხვალ</a>
-                        <a href="{{ route('admin.dashboard') }}">ყველა</a>
+                        <a class="{{ $allDates ? 'active' : '' }}" href="{{ route('admin.dashboard', ['scope' => 'all']) }}">ყველა</a>
                     </div>
 
                     <form class="reservation-filters" method="GET" action="{{ route('admin.dashboard') }}">
                         <div class="filter-search"><span>⌕</span><input name="q" value="{{ $query }}" placeholder="რეზერვაციის ძიება..."></div>
-                        <input type="date" name="date" value="{{ $date ?: $today }}">
-                        <select name="status" disabled><option>ყველა სტატუსი</option></select>
+                        <input type="date" name="date" value="{{ $allDates ? $date : ($date ?: $today) }}">
+                        <select name="status">
+                            <option value="">ყველა სტატუსი</option>
+                            @foreach ($statusNames as $statusCode => $statusLabel)
+                                <option value="{{ $statusCode }}" @selected($status === $statusCode)>{{ $statusLabel }}</option>
+                            @endforeach
+                        </select>
+                        <input type="hidden" name="scope" value="{{ $allDates ? 'all' : 'day' }}">
+                        <input type="hidden" name="start" value="{{ $mapStart }}">
                         <button type="submit">ფილტრი</button>
                     </form>
 
@@ -174,7 +188,7 @@
                                                 </form>
                                             @endif
                                             <button type="button" class="more-btn" title="დეტალები" data-row-detail>•••</button>
-                                            <div class="row-detail-card" hidden>
+                                            <div class="row-detail-card" role="dialog" aria-label="ჯავშნის დეტალები" hidden><button type="button" data-close-detail aria-label="დახურვა">×</button>
                                                 <strong>{{ $reservation->reference }}</strong>
                                                 <p>დაბადება: {{ $reservation->birth_day }}/{{ $reservation->birth_month }}{{ $reservation->birth_year ? '/'.$reservation->birth_year : '' }}</p>
                                                 @if($reservation->items->isNotEmpty())
@@ -215,34 +229,38 @@
 
                 <aside class="operations-column">
                     <section class="floor-card">
-                        <div class="card-toggle"><button class="active">სართულის გეგმა</button><button>სია</button></div>
+                        <div class="card-toggle"><button type="button" class="active" data-floor-mode="map">სართულის გეგმა</button><button type="button" data-floor-mode="list">სია</button></div>
                         <div class="mini-floor">
                             <div class="floor-window-line"></div>
-                            @foreach($tables as $table)
+                            @foreach($tables->where('active', true) as $table)
                                 <div class="floor-table {{ in_array($table->id, $reservedTableIds, true) ? 'busy' : 'free' }}"
                                      style="left:{{ $table->x }}%;top:{{ $table->y }}%;">
                                     <span>{{ $table->name }}</span><small>{{ $table->capacity }}</small>
                                 </div>
                             @endforeach
-                            <div class="vip-table vip1">VIP1</div>
-                            <div class="vip-table vip2">VIP2</div>
+
+                        </div>
+                        <div class="floor-list" hidden>
+                            @foreach($tables->where('active', true) as $table)
+                                <div><strong>{{ $table->name }} · {{ $table->capacity }} ადგილი</strong><span>{{ in_array($table->id, $reservedTableIds, true) ? 'დაკავებული' : 'თავისუფალი' }}</span></div>
+                            @endforeach
                         </div>
                         <div class="floor-legend">
                             <span><i class="free-dot"></i>თავისუფალი</span>
                             <span><i class="busy-dot"></i>დაკავებული</span>
-                            <span><i class="vip-dot"></i>VIP</span>
+
                         </div>
                     </section>
                 </aside>
 
                 <aside class="insights-column">
                     <section class="calendar-mini-card">
-                        <div class="insight-head"><strong>{{ $todayCarbon->translatedFormat('F Y') }}</strong><span>›</span></div>
+                        <div class="insight-head"><strong>{{ $todayCarbon->translatedFormat('F Y') }}</strong></div>
                         <div class="mini-weekdays"><span>ორშ</span><span>სამ</span><span>ოთხ</span><span>ხუთ</span><span>პარ</span><span>შაბ</span><span>კვი</span></div>
                         <div class="mini-calendar-grid">
                             @for($blank = 1; $blank < $startDow; $blank++)<span></span>@endfor
                             @for($day = 1; $day <= $daysInMonth; $day++)
-                                <span class="{{ $day === (int)$todayCarbon->day ? 'today' : '' }}">{{ $day }}</span>
+                                <a class="{{ $day === (int)$todayCarbon->day ? 'today' : '' }}" href="{{ route('admin.dashboard', ['date' => $monthStart->copy()->day($day)->toDateString(), 'start' => $mapStart]) }}">{{ $day }}</a>
                             @endfor
                         </div>
                     </section>

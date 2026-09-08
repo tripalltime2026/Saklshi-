@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\DiningTable;
+use App\Models\BookingSlot;
+use Illuminate\Support\Facades\DB;
 use App\Models\MenuItem;
 use App\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +18,18 @@ class AdminController extends Controller
 {
     public function index(Request $request): View
     {
+        $request->validate([
+            'q' => ['nullable', 'string', 'max:120'],
+            'date' => ['nullable', 'date_format:Y-m-d'],
+            'start' => ['nullable', 'integer', 'min:720', 'max:1320', 'multiple_of:30'],
+            'status' => ['nullable', Rule::in(['confirmed', 'arrived', 'completed', 'cancelled', 'no_show'])],
+            'scope' => ['nullable', Rule::in(['all', 'day'])],
+        ]);
+        $status = (string) $request->query('status', '');
+        $allDates = $request->query('scope') === 'all';
+        $mapStart = (int) $request->query('start', min(1320, max(720, (int) floor((now('Asia/Tbilisi')->hour * 60 + now('Asia/Tbilisi')->minute) / 30) * 30)));
+        $freeSeats = 0;
+        $freeTables = 0;
         $query = trim((string) $request->query('q', ''));
         $date = (string) $request->query('date', '');
         $today = now('Asia/Tbilisi')->toDateString();
@@ -38,7 +52,9 @@ class AdminController extends Controller
                 $reservations = Reservation::query()
                     ->with(['table', 'items'])
                     ->when($date !== '', fn ($q) => $q->whereDate('visit_date', $date))
-                    ->when($date === '', fn ($q) => $q->whereDate('visit_date', $today))
+                    ->when($date === '' && ! $allDates, fn ($q) => $q->whereDate('visit_date', $today))
+                    ->when($status !== '', fn ($q) => $q->where('status', $status))
+                    ->orderBy('visit_date')
                     ->when($query !== '', function ($q) use ($query) {
                         $q->where(function ($inner) use ($query) {
                             $inner->where('first_name', 'like', "%{$query}%")
@@ -86,7 +102,7 @@ class AdminController extends Controller
 
                 $todayCount = $todayReservations->count();
                 $todayGuestCount = (int) $todayReservations->sum('guests');
-                $restaurantCapacity = 210;
+                $restaurantCapacity = 0;
                 $occupancyPercent = $restaurantCapacity > 0
                     ? min(100, (int) round(($todayGuestCount / $restaurantCapacity) * 100))
                     : 0;
@@ -98,12 +114,18 @@ class AdminController extends Controller
                     }
                 }
 
-                $reservedTableIds = Reservation::query()
+                $reservedTableIds = BookingSlot::query()
                     ->whereDate('visit_date', $mapDate)
-                    ->whereNotIn('status', ['cancelled', 'no_show'])
-                    ->pluck('dining_table_id')
-                    ->map(fn ($id) => (int) $id)
-                    ->all();
+                    ->where('minute', '>=', $mapStart)
+                    ->where('minute', '<', $mapStart + 120)
+                    ->distinct()->pluck('dining_table_id')->map(fn ($id) => (int) $id)->all();
+                $activeTables = $tables->where('active', true);
+                $restaurantCapacity = (int) $activeTables->sum('capacity');
+                $freeTableRows = $activeTables->whereNotIn('id', $reservedTableIds);
+                $freeSeats = (int) $freeTableRows->sum('capacity');
+                $freeTables = $freeTableRows->count();
+                $occupancyPercent = $restaurantCapacity > 0
+                    ? (int) round(100 * ($restaurantCapacity - $freeSeats) / $restaurantCapacity) : 0;
 
                 $statusBreakdown = Reservation::query()
                     ->whereDate('visit_date', $today)
@@ -133,7 +155,7 @@ class AdminController extends Controller
                 $todayReservations = collect();
                 $todayCount = 0;
                 $todayGuestCount = 0;
-                $restaurantCapacity = 210;
+                $restaurantCapacity = 0;
                 $occupancyPercent = 0;
                 $todayPreorderRevenue = 0;
                 $reservedTableIds = [];
@@ -159,7 +181,7 @@ class AdminController extends Controller
             $todayReservations = collect();
             $todayCount = 0;
             $todayGuestCount = 0;
-            $restaurantCapacity = 210;
+            $restaurantCapacity = 0;
             $occupancyPercent = 0;
             $todayPreorderRevenue = 0;
             $reservedTableIds = [];
@@ -173,6 +195,11 @@ class AdminController extends Controller
 
         return view('admin.dashboard', [
             'reservations' => $reservations,
+            'status' => $status,
+            'allDates' => $allDates,
+            'mapStart' => $mapStart,
+            'freeSeats' => $freeSeats,
+            'freeTables' => $freeTables,
             'guests' => $guests,
             'menu' => $menu,
             'tables' => $tables,
@@ -201,11 +228,23 @@ class AdminController extends Controller
             'status' => ['required', Rule::in(['confirmed', 'arrived', 'completed', 'cancelled', 'no_show'])],
         ]);
 
-        $reservation->update(['status' => $validated['status']]);
-
-        if (in_array($validated['status'], ['cancelled', 'no_show'], true)) {
-            $reservation->slots()->delete();
-        }
+        DB::transaction(function () use ($reservation, $validated) {
+            $locked = Reservation::query()->lockForUpdate()->findOrFail($reservation->id);
+            $allowed = [
+                'confirmed' => ['arrived', 'cancelled', 'no_show'],
+                'arrived' => ['completed'],
+            ];
+            if ($validated['status'] !== $locked->status
+                && ! in_array($validated['status'], $allowed[$locked->status] ?? [], true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'status' => 'სტატუსის ასეთი ცვლილება დაუშვებელია. განაახლეთ გვერდი.',
+                ]);
+            }
+            $locked->update(['status' => $validated['status']]);
+            if (in_array($validated['status'], ['cancelled', 'no_show', 'completed'], true)) {
+                $locked->slots()->delete();
+            }
+        }, 3);
 
         return back()->with('success', 'ჯავშნის სტატუსი განახლდა.');
     }
