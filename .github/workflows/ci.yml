@@ -42,4 +42,5 @@ jobs:
       - name: Smoke test
         run: |
           php artisan route:list
+          php artisan view:cache
           php artisan about
