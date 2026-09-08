@@ -48,6 +48,13 @@ jobs:
           php artisan serve --host=127.0.0.1 --port=8000 > /tmp/saklshi-ci.log 2>&1 &
           SERVER_PID=$!
           sleep 2
-          curl --fail --show-error http://127.0.0.1:8000/__ci/admin-dashboard > /tmp/admin.html
+          if ! curl --fail --show-error http://127.0.0.1:8000/__ci/admin-dashboard > /tmp/admin.html; then
+            echo "---- Laravel server log ----"
+            cat /tmp/saklshi-ci.log || true
+            echo "---- Laravel application log ----"
+            cat storage/logs/laravel.log || true
+            kill $SERVER_PID || true
+            exit 1
+          fi
           kill $SERVER_PID
           test -s /tmp/admin.html
