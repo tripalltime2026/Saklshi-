@@ -1,16 +1,10 @@
 <?php
 
 return [
-    // Production-safe for this single-instance app. Do not let a Cloud-level
-    // CACHE_STORE=database override this until database cache tables exist.
-    'default' => 'file',
+    // Stateless cache avoids any dependency on a database table or writable disk.
+    'default' => 'array',
 
     'stores' => [
-        'file' => [
-            'driver' => 'file',
-            'path' => storage_path('framework/cache/data'),
-            'lock_path' => storage_path('framework/cache/data'),
-        ],
         'array' => [
             'driver' => 'array',
             'serialize' => false,
