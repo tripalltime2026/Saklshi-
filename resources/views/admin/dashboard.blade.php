@@ -79,6 +79,14 @@
             </div>
         @endif
 
+        @if (! $databaseReady)
+            <div class="admin-error">
+                <strong>ბაზის მომზადება საჭიროა.</strong>
+                <div>{{ $databaseError }}</div>
+                <div style="margin-top:6px">Laravel Cloud → Commands: <code>php artisan migrate --force</code> და შემდეგ <code>php artisan db:seed --force</code></div>
+            </div>
+        @endif
+
         <section class="kpi-row">
             <article class="kpi-card">
                 <span class="kpi-icon">▣</span>
@@ -169,7 +177,13 @@
                                                         @foreach($reservation->items as $item)
                                                             <p>{{ $item->name }} × {{ $item->quantity }} — {{ number_format(($item->unit_price * $item->quantity) / 100, 2) }} ₾</p>
                                                         @endforeach
-                                                        <strong>ჯამი: {{ number_format($reservation->items->sum(fn($item) => $item->unit_price * $item->quantity) / 100, 2) }} ₾</strong>
+                                                        @php
+                                                            $reservationMenuTotal = 0;
+                                                            foreach ($reservation->items as $menuLine) {
+                                                                $reservationMenuTotal += ((int) $menuLine->unit_price) * ((int) $menuLine->quantity);
+                                                            }
+                                                        @endphp
+                                                        <strong>ჯამი: {{ number_format($reservationMenuTotal / 100, 2) }} ₾</strong>
                                                     </div>
                                                 @endif
                                                 @if($reservation->notes)<p>{{ $reservation->notes }}</p>@endif
@@ -227,9 +241,9 @@
 
                     <section class="insight-card">
                         <h4>ამ დღის ჯავშნები</h4>
-                        <div class="time-band"><span>12:00–16:00</span><strong>{{ $todayReservations = $reservations->filter(fn($r) => $r->visit_date->format('Y-m-d') === $today && $r->start_minute < 960)->sum('guests') }} სტუმარი</strong></div>
-                        <div class="time-band"><span>16:00–19:00</span><strong>{{ $reservations->filter(fn($r) => $r->visit_date->format('Y-m-d') === $today && $r->start_minute >= 960 && $r->start_minute < 1140)->sum('guests') }} სტუმარი</strong></div>
-                        <div class="time-band"><span>19:00–23:00</span><strong>{{ $reservations->filter(fn($r) => $r->visit_date->format('Y-m-d') === $today && $r->start_minute >= 1140)->sum('guests') }} სტუმარი</strong></div>
+                        <div class="time-band"><span>12:00–16:00</span><strong>{{ $todayByPeriod['lunch']['guests'] }} სტუმარი</strong></div>
+                        <div class="time-band"><span>16:00–19:00</span><strong>{{ $todayByPeriod['early']['guests'] }} სტუმარი</strong></div>
+                        <div class="time-band"><span>19:00–23:00</span><strong>{{ $todayByPeriod['dinner']['guests'] }} სტუმარი</strong></div>
                     </section>
 
                     <section class="insight-card status-card">
