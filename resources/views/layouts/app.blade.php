@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#243b32">
     <title>@yield('title', 'ბათუმის სახლში')</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin-exact.css') }}">
     @stack('head')
 </head>
 <body class="@yield('body-class')">
