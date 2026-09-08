@@ -76,5 +76,26 @@ $admin->updateStatus(req('/admin/status', 'PATCH', ['status' => 'completed']), $
 check($available(840)['available'] === 1, 'Completion releases capacity');
 $filtered = $admin->index(req('/admin', 'GET', ['scope' => 'all', 'status' => 'cancelled']));
 check($filtered->getData()['reservations']->count() === 1, 'All dates and status filters work');
+
+$admin->storeMenu(req('/admin/menu', 'POST', ['name' => 'Test cold dish', 'category' => 'ცივი კერძები', 'price_gel' => '12.50', 'active' => 1]));
+$dish = App\Models\MenuItem::where('name', 'Test cold dish')->firstOrFail();
+check($dish->price === 1250 || (int) $dish->price === 1250, 'Menu prices stored in tetri');
+check($controller->index()->getData()['menu']->contains('id', $dish->id), 'Added active dish appears for guests');
+$admin->updateMenu(req('/admin/menu', 'PUT', ['name' => 'Test hot dish', 'category' => 'ცხელი კერძები', 'price_gel' => '18.25', 'active' => 1]), $dish);
+check($dish->fresh()->category === 'ცხელი კერძები' && (int) $dish->fresh()->price === 1825, 'Dish name, price and category can be edited');
+$admin->toggleMenu($dish->fresh());
+check(! $controller->index()->getData()['menu']->contains('id', $dish->id), 'Hidden dish is excluded from guest menu');
+$admin->toggleMenu($dish->fresh());
+$admin->updateMenu(req('/admin/menu', 'PUT', ['name' => 'Test hot dish', 'category' => 'ცხელი კერძები', 'custom_category' => 'საფირმო კერძები', 'price_gel' => '18.25', 'active' => 1]), $dish->fresh());
+check($dish->fresh()->category === 'საფირმო კერძები', 'Custom categories supported');
+$html = $admin->index(req('/admin'))->render();
+check(str_contains($html, 'საფირმო კერძები') && str_contains($html, 'კერძის წაშლა'), 'Grouped menu management renders');
+$second->items()->create(['menu_item_id' => $dish->id, 'name' => 'Test hot dish', 'unit_price' => 1825, 'quantity' => 2]);
+$admin->destroyMenu($dish->fresh());
+check(! App\Models\MenuItem::whereKey($dish->id)->exists(), 'Dish is deleted');
+$line = $second->items()->first();
+check($line && $line->menu_item_id === null && $line->name === 'Test hot dish' && (int) $line->unit_price === 1825 && (int) $line->quantity === 2, 'Deletion preserves historical order details');
+check(! $controller->index()->getData()['menu']->contains('id', $dish->id), 'Deleted dish unavailable for new reservations');
+
 $auth->logout(req('/admin/logout', 'POST'));
 check($guard->handle(req('/admin'), fn () => response('protected'))->getStatusCode() === 302, 'Logout protects admin again');

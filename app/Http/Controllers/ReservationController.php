@@ -28,7 +28,6 @@ class ReservationController extends Controller
             DiningTable::query()->where('active', true)->count();
             $menu = MenuItem::query()
                 ->where('active', true)
-                ->where('name', '!=', 'აჭარული ხაჭაპური')
                 ->orderBy('category')
                 ->orderBy('name')
                 ->get();
@@ -179,7 +178,6 @@ class ReservationController extends Controller
                 $menuItems = MenuItem::query()
                     ->whereIn('id', $selectedItems->keys())
                     ->where('active', true)
-                    ->where('name', '!=', 'აჭარული ხაჭაპური')
                     ->get()
                     ->keyBy('id');
 
