@@ -22,7 +22,7 @@ class AdminAuthController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'email' => ['required', 'email'],
+            'login' => ['required', 'string', 'max:120'],
             'password' => ['required', 'string', 'max:255'],
         ]);
 
@@ -30,27 +30,27 @@ class AdminAuthController extends Controller
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
             throw ValidationException::withMessages([
-                'email' => 'ძალიან ბევრი მცდელობაა. სცადეთ დაახლოებით ერთ წუთში.',
+                'login' => 'ძალიან ბევრი მცდელობაა. სცადეთ დაახლოებით ერთ წუთში.',
             ]);
         }
 
-        $email = (string) config('saklshi.admin_email');
+        $login = (string) config('saklshi.admin_login');
         $password = (string) config('saklshi.admin_password');
 
         if ($password === '') {
             throw ValidationException::withMessages([
-                'email' => 'Laravel Cloud-ში ჯერ დააყენეთ ADMIN_PASSWORD.',
+                'login' => 'Laravel Cloud-ში ჯერ დააყენეთ ADMIN_PASSWORD.',
             ]);
         }
 
-        $valid = hash_equals(mb_strtolower($email), mb_strtolower((string) $validated['email']))
+        $valid = hash_equals(mb_strtolower($login), mb_strtolower(trim((string) $validated['login'])))
             && hash_equals($password, (string) $validated['password']);
 
         if (! $valid) {
             RateLimiter::hit($key, 60);
 
             throw ValidationException::withMessages([
-                'email' => 'ელფოსტა ან პაროლი არასწორია.',
+                'login' => 'ლოგინი ან პაროლი არასწორია.',
             ]);
         }
 
