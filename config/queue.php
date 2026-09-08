@@ -1,13 +1,16 @@
 <?php
 
 return [
-    'default' => env('QUEUE_CONNECTION', 'sync'),
+    // No database queue table is required for the reservation/admin flow.
+    'default' => 'sync',
+
     'connections' => [
         'sync' => ['driver' => 'sync'],
     ],
+
     'failed' => [
-        'driver' => env('QUEUE_FAILED_DRIVER', 'null'),
-        'database' => env('DB_CONNECTION', 'sqlite'),
+        'driver' => 'null',
+        'database' => env('DB_CONNECTION', 'mysql'),
         'table' => 'failed_jobs',
     ],
 ];
