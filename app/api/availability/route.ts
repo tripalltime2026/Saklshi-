@@ -1,0 +1,2 @@
+import {db,json,failure} from '@/lib/server';
+export async function GET(r:Request){try{const q=new URL(r.url).searchParams; const date=q.get('date'),start=Number(q.get('start'));if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isInteger(start)||start<720||start>1320)return json({error:'აირჩიეთ თარიღი და დრო'},400);const rows=await db().prepare('SELECT DISTINCT table_id FROM booking_slots WHERE date=? AND minute>=? AND minute<?').bind(date,start,start+120).all();return json({occupied:rows.results.map((x)=>x.table_id)});}catch(e){return failure(e);}}
