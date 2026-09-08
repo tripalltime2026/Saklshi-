@@ -234,6 +234,8 @@ class ReservationController extends Controller
 
                 return $reservation;
             }, 3);
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (QueryException $e) {
             $isConflict = in_array((string) $e->getCode(), ['23000', '23505'], true)
                 || str_contains(strtolower($e->getMessage()), 'unique_table_slot');
@@ -244,10 +246,20 @@ class ReservationController extends Controller
                 ]);
             }
 
-            throw $e;
+            report($e);
+
+            return back()
+                ->withInput()
+                ->withErrors(['reservation' => 'ჯავშნის შენახვა ვერ დასრულდა. გთხოვთ სცადოთ ხელახლა.']);
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()
+                ->withInput()
+                ->withErrors(['reservation' => 'ტექნიკური შეცდომა დაფიქსირდა. მონაცემები არ დაკარგულა — გთხოვთ სცადოთ ხელახლა.']);
         }
 
-        return redirect()->route('reservation.confirmation', $reservation->reference);
+        return redirect()->route('reservation.confirmation', ['reference' => $reservation->reference]);
     }
 
     public function confirmation(string $reference): View
