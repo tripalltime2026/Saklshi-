@@ -5,9 +5,8 @@
 
 @section('content')
 <header class="top">
-    <a class="brand" href="{{ route('reservation.index') }}">
-        <span class="brandmark">⌂</span>
-        <span>ბათუმის სახლში<small>მართვის სივრცე</small></span>
+    <a class="brand guest-brand-logo" href="{{ route('reservation.index') }}">
+        <img src="{{ asset('images/batumis-sakhlshi-logo.png') }}" alt="ბათუმის სახლში">
     </a>
     <a class="admin-link" style="margin-left:auto" href="{{ route('reservation.index') }}">დაჯავშნის გვერდი</a>
 </header>
@@ -29,8 +28,8 @@
         <form method="POST" action="{{ route('admin.login.submit') }}">
             @csrf
             <label>
-                ელფოსტა
-                <input type="email" name="email" autocomplete="username" required value="{{ old('email') }}">
+                ლოგინი
+                <input type="text" name="login" autocomplete="username" required value="{{ old('login', 'admin') }}">
             </label>
             <label>
                 პაროლი
