@@ -1,55 +1,59 @@
 @extends('layouts.app')
 
 @section('title', 'ჯავშანი დადასტურებულია — ბათუმის სახლში')
-@section('body-class', 'success-page')
+@section('body-class', 'reservation-shell')
 
 @php
     $time = sprintf('%02d:%02d', intdiv($reservation->start_minute, 60), $reservation->start_minute % 60);
-    $total = $reservation->items->sum(fn ($item) => $item->unit_price * $item->quantity);
+    $occasionNames = [
+        'banquet' => 'ბანკეტი',
+        'birthday' => 'დაბადების დღე',
+        'friends' => 'მეგობრები',
+        'couple' => 'წყვილი',
+    ];
 @endphp
 
 @section('content')
-<header class="top print-hide">
-    <a class="brand" href="{{ route('reservation.index') }}">
-        <span class="brandmark">⌂</span>
-        <span>ბათუმის სახლში<small>ქართული საღამოს მისამართი</small></span>
-    </a>
-    <span class="top-note">⌖ ბათუმი</span>
-</header>
+<div class="confirmation-page">
+    <header class="guest-nav confirmation-nav print-hide">
+        <a href="{{ route('reservation.index') }}" class="guest-brand">
+            <span class="guest-brand-mark">⌂</span>
+            <span class="guest-brand-copy">
+                <strong>ბათუმის სახლში</strong>
+                <small>RESTAURANT · BATUMI</small>
+            </span>
+        </a>
+        <div></div>
+        <a class="book-chip" href="{{ route('reservation.index') }}">ახალი ჯავშანი</a>
+    </header>
 
-<main class="success-wrap">
-    <div class="success-icon">✓</div>
-    <span class="eyebrow">გელოდებით სახლში</span>
-    <h1 style="font-size:36px;margin:12px 0 8px;">მაგიდა დაჯავშნილია</h1>
-    <p class="muted">{{ $reservation->first_name }}, თქვენი ჯავშანი სისტემაში შენახულია.</p>
+    <main class="confirmation-hero">
+        <section class="confirmation-box">
+            <div class="confirmation-check">✓</div>
+            <span class="confirmation-eyebrow">გელოდებით სახლში</span>
+            <h1>მაგიდა დაჯავშნილია</h1>
+            <p>{{ $reservation->first_name }}, თქვენი ჯავშანი წარმატებით შევინახეთ.</p>
 
-    <div class="summarybox">
-        <strong>{{ $reservation->visit_date->format('Y-m-d') }} · {{ $time }}</strong>
-        <p>{{ $reservation->table?->name }} · {{ $reservation->guests }} სტუმარი · 2 საათი</p>
-
-        @if ($reservation->items->isNotEmpty())
-            <div style="margin-top:16px;">
-                @foreach ($reservation->items as $item)
-                    <p>{{ $item->name }} × {{ $item->quantity }} — {{ number_format(($item->unit_price * $item->quantity) / 100, 2) }} ₾</p>
-                @endforeach
-                <p><strong>მენიუ ჯამში: {{ number_format($total / 100, 2) }} ₾</strong></p>
+            <div class="confirmation-summary">
+                <div><span>თარიღი</span><strong>{{ $reservation->visit_date->translatedFormat('d F, Y') }}</strong></div>
+                <div><span>დრო</span><strong>{{ $time }}</strong></div>
+                <div><span>სტუმრები</span><strong>{{ $reservation->guests }} ადამიანი</strong></div>
+                <div><span>მიზეზი</span><strong>{{ $occasionNames[$reservation->occasion] ?? 'რეზერვაცია' }}</strong></div>
+                <div><span>მაგიდა</span><strong>{{ $reservation->table?->name ?? 'დადასტურებულია' }}</strong></div>
+                <div><span>ჯავშნის კოდი</span><strong>{{ $reservation->reference }}</strong></div>
             </div>
-        @else
-            <p>მენიუ წინასწარ არ არის არჩეული.</p>
-        @endif
 
-        @if ($reservation->notes)
-            <p style="margin-top:12px;">სურვილი: {{ $reservation->notes }}</p>
-        @endif
+            @if ($reservation->notes)
+                <div class="confirmation-note"><span>შენიშვნა</span><p>{{ $reservation->notes }}</p></div>
+            @endif
 
-        <small>ჯავშნის კოდი: <strong>{{ $reservation->reference }}</strong></small>
-    </div>
+            <div class="confirmation-welcome">⌂ <span>მოხარული ვიქნებით თქვენთან შეხვედრით<br>ბათუმის სახლში.</span></div>
 
-    <p class="muted">მენიუს თანხა გადაიხდება რესტორანში. შეინახეთ ჯავშნის კოდი.</p>
-
-    <div class="print-hide" style="margin-top:24px;">
-        <button class="link-button" onclick="window.print()">დადასტურების ბეჭდვა</button>
-        <a class="link-button" href="{{ route('reservation.index') }}">ახალი ჯავშანი</a>
-    </div>
-</main>
+            <div class="confirmation-actions print-hide">
+                <button type="button" onclick="window.print()">დადასტურების ბეჭდვა</button>
+                <a href="{{ route('reservation.index') }}">ახალი ჯავშანი →</a>
+            </div>
+        </section>
+    </main>
+</div>
 @endsection
