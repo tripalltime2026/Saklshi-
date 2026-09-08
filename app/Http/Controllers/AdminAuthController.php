@@ -12,7 +12,7 @@ class AdminAuthController extends Controller
 {
     public function showLogin(): View|RedirectResponse
     {
-        if (session('saklshi_admin', false)) {
+        if (session('saklshi_admin', false) && (int) session('saklshi_admin_login_at', 0) > time() - 28800) {
             return redirect()->route('admin.dashboard');
         }
 
@@ -57,6 +57,7 @@ class AdminAuthController extends Controller
         RateLimiter::clear($key);
         $request->session()->regenerate();
         $request->session()->put('saklshi_admin', true);
+        $request->session()->put('saklshi_admin_login_at', time());
 
         return redirect()->intended(route('admin.dashboard'));
     }

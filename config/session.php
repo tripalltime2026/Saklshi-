@@ -6,7 +6,7 @@ return [
     // Cookie sessions avoid database tables and writable session directories.
     'driver' => 'cookie',
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
-    'expire_on_close' => false,
+    'expire_on_close' => true,
     'encrypt' => true,
     'files' => storage_path('framework/sessions'),
     'connection' => null,

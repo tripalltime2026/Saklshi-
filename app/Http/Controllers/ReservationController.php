@@ -79,7 +79,9 @@ class ReservationController extends Controller
             return response()->json([
                 'occupied' => $occupied,
                 'available' => $available,
-            ]);
+                'free_seats' => (int) DiningTable::query()->where('active', true)->whereNotIn('id', $occupied)->sum('capacity'),
+                'local_now' => now('Asia/Tbilisi')->format('Y-m-d H:i'),
+            ])->header('Cache-Control', 'no-store');
         } catch (Throwable $e) {
             report($e);
 

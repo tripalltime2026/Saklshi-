@@ -40,6 +40,9 @@ jobs:
           php artisan migrate --force
           php artisan db:seed --force
 
+      - name: Verify authentication and booking capacity
+        run: php tests/operations.php
+
       - name: Smoke test
         run: |
           php artisan route:list

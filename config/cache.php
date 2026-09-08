@@ -1,15 +1,15 @@
 <?php
 
 return [
-    // Stateless cache avoids any dependency on a database table or writable disk.
-    'default' => 'array',
-
+    // Persist login throttling between requests without requiring a database table.
+    'default' => 'file',
     'stores' => [
-        'array' => [
-            'driver' => 'array',
-            'serialize' => false,
+        'file' => [
+            'driver' => 'file',
+            'path' => storage_path('framework/cache/data'),
+            'lock_path' => storage_path('framework/cache/data'),
         ],
+        'array' => ['driver' => 'array', 'serialize' => false],
     ],
-
     'prefix' => env('CACHE_PREFIX', 'saklshi_cache_'),
 ];
