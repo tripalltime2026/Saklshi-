@@ -29,7 +29,7 @@ class ReservationController extends Controller
             $menu = MenuItem::query()
                 ->where('active', true)
                 ->orderBy('category')
-                ->orderBy('name')
+                ->orderBy('sort_order')->orderBy('name')
                 ->get();
         } catch (Throwable $e) {
             report($e);
@@ -105,7 +105,7 @@ class ReservationController extends Controller
             'birth_date' => ['required', 'date_format:Y-m-d'],
             'marketing_consent' => ['nullable', 'boolean'],
             'notes' => ['nullable', 'string', 'max:500'],
-            'items' => ['nullable', 'array', 'max:100'],
+            'items' => ['nullable', 'array', 'max:300'],
             'items.*' => ['nullable', 'integer', 'min:0', 'max:20'],
         ]);
 
@@ -148,8 +148,11 @@ class ReservationController extends Controller
 
         $selectedItems = collect($validated['items'] ?? [])
             ->map(fn ($qty) => (int) $qty)
-            ->filter(fn ($qty) => $qty > 0)
-            ->take(30);
+            ->filter(fn ($qty) => $qty > 0);
+
+        if ($selectedItems->count() > 100) {
+            throw ValidationException::withMessages(['items' => 'ერთ ჯავშანში აირჩიეთ მაქსიმუმ 100 განსხვავებული პოზიცია.']);
+        }
 
         try {
             $reservation = DB::transaction(function () use ($validated, $phone, $start, $birthDate, $selectedItems) {
@@ -272,3 +275,4 @@ class ReservationController extends Controller
         return view('confirmation', compact('reservation'));
     }
 }
+

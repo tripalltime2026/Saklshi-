@@ -323,6 +323,9 @@
                     @csrf
                     <h3>ახალი კერძი</h3>
                     <label>სახელი<input required maxlength="160" name="name" value="{{ old('name') }}" placeholder="კერძის სახელი"></label>
+                    <label>ინგლისური სახელი<input maxlength="240" name="name_en" value="{{ old('name_en') }}"></label>
+                    <label>აღწერა<textarea maxlength="2000" name="description">{{ old('description') }}</textarea></label>
+                    <label>აღწერა ინგლისურად<textarea maxlength="2000" name="description_en">{{ old('description_en') }}</textarea></label>
                     <label>კატეგორია<select required name="category">
                         @foreach($menuCategories as $categoryName)
                             <option value="{{ $categoryName }}" @selected(old('category', 'ცივი კერძები') === $categoryName)>{{ $categoryName }}</option>
@@ -334,17 +337,30 @@
                     <label class="check-line"><input type="checkbox" name="active" value="1" @checked(old('active', 1))> გამოჩნდეს სტუმრის მენიუში</label>
                     <button class="management-primary" type="submit">კერძის დამატება</button>
                 </form>
-                <div>
+                <div data-menu-browser>
+                    <div class="menu-browser-controls">
+                        <label>კატეგორია<select data-menu-category aria-label="ადმინის მენიუს კატეგორია">
+                            @foreach($menuGroups as $categoryName => $categoryItems)
+                                <option value="{{ $categoryName }}">{{ $categoryName }} ({{ $categoryItems->count() }})</option>
+                            @endforeach
+                        </select></label>
+                        <label>ძიება<input type="search" data-menu-search placeholder="სახელი ან აღწერა" aria-label="ადმინის მენიუში ძიება"></label>
+                    </div>
+                    <p class="menu-result-count" data-menu-result role="status"></p>
                     @forelse($menuGroups as $categoryName => $categoryItems)
-                        <section aria-label="{{ $categoryName }}" style="margin-bottom:24px">
+                        <section aria-label="{{ $categoryName }}" data-menu-group="{{ $categoryName }}" @if(!$loop->first) hidden @endif>
                             <div class="secondary-panel-head"><h3>{{ $categoryName }}</h3><span>{{ $categoryItems->count() }} კერძი</span></div>
                             <div class="cards-grid">
                                 @foreach($categoryItems as $item)
-                                    <article class="management-card">
+                                    <details class="management-card menu-edit-card" data-menu-entry data-category="{{ $categoryName }}" data-search="{{ $item->name }} {{ $item->name_en }} {{ $item->description }} {{ $item->description_en }}">
+                                        <summary><span>{{ $item->name }}<small>{{ $item->name_en }}</small><small>{{ $item->active ? 'აქტიური' : 'დამალული' }}</small></span><strong>{{ number_format($item->price / 100, 2) }} ₾</strong></summary>
                                         <p>{{ $item->active ? '● აქტიური' : '○ დამალული' }}</p>
                                         <form method="POST" action="{{ route('admin.menu.update', $item) }}">
                                             @csrf @method('PUT')
                                             <label>სახელი<input required maxlength="160" name="name" value="{{ $item->name }}"></label>
+                                            <label>ინგლისური სახელი<input maxlength="240" name="name_en" value="{{ $item->name_en }}"></label>
+                                            <label>აღწერა<textarea maxlength="2000" name="description">{{ $item->description }}</textarea></label>
+                                            <label>აღწერა ინგლისურად<textarea maxlength="2000" name="description_en">{{ $item->description_en }}</textarea></label>
                                             <label>კატეგორია<select required name="category">
                                                 @foreach($menuCategories as $option)
                                                     <option value="{{ $option }}" @selected($item->category === $option)>{{ $option }}</option>
@@ -363,13 +379,17 @@
                                             @csrf @method('DELETE')
                                             <button class="danger-link" type="submit">კერძის წაშლა</button>
                                         </form>
-                                    </article>
+                                    </details>
                                 @endforeach
                             </div>
                         </section>
                     @empty
                         <div class="management-card">მენიუ ცარიელია. დაამატეთ პირველი კერძი.</div>
                     @endforelse
+                    <div class="menu-empty-state" data-menu-no-results hidden>პოზიცია ვერ მოიძებნა.</div>
+                    <div class="menu-pagination" data-menu-pagination hidden>
+                        <button type="button" data-menu-prev>← წინა</button><span data-menu-page></span><button type="button" data-menu-next>შემდეგი →</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -417,4 +437,6 @@
 
 @push('scripts')
 <script src="{{ asset('js/admin.js') }}" defer></script>
+<script src="{{ asset('js/menu-browser.js') }}" defer></script>
 @endpush
+

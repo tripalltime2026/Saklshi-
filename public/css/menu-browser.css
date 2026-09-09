@@ -1,0 +1,28 @@
+[data-menu-browser] { min-width:0; }
+[data-menu-browser] [hidden] { display:none !important; }
+.menu-browser-controls { display:flex; flex-wrap:wrap; gap:12px; align-items:end; margin:18px 0 10px; }
+.menu-browser-controls label { display:flex; flex-direction:column; gap:7px; flex:1 1 200px; min-width:0; font-size:12px; font-weight:600; }
+.menu-browser-controls select,.menu-browser-controls input { box-sizing:border-box; width:100%; min-width:0; min-height:44px; border:1px solid #d8dcd7; border-radius:10px; background:#fff; color:#243b32; padding:10px 12px; font:inherit; }
+.menu-browser-controls button,.menu-pagination button { min-height:44px; border:1px solid #ccd4cc; border-radius:10px; padding:10px 15px; background:#fff; color:#243b32; cursor:pointer; font:inherit; }
+.menu-browser-controls button[aria-pressed="true"] { background:#243b32; color:#fff; }
+.menu-browser-controls :focus-visible,.menu-pagination :focus-visible,.menu-edit-card summary:focus-visible { outline:3px solid #b08a45; outline-offset:3px; }
+.menu-result-count { color:#637168; font-size:12px; margin:10px 0; }
+.menu-pagination { display:flex; justify-content:center; align-items:center; gap:16px; margin-top:16px; }
+.menu-pagination button:disabled,.menu-counter button:disabled { opacity:.4; cursor:default; }
+.menu-select-copy { min-width:0; overflow-wrap:anywhere; }
+.menu-select-copy small,.menu-edit-card summary small { display:block; color:#758076; font-size:11px; line-height:1.6; font-weight:400; }
+.menu-select-copy p { font-size:12px; line-height:1.6; margin:8px 0; }
+.menu-select-item { align-items:flex-start; }
+.menu-counter { flex-shrink:0; }
+.menu-edit-card { align-self:start; }
+.menu-edit-card summary { display:flex; gap:12px; justify-content:space-between; align-items:start; cursor:pointer; line-height:1.6; }
+.menu-edit-card summary>span { min-width:0; overflow-wrap:anywhere; }
+.menu-edit-card summary>strong { white-space:nowrap; }
+.menu-edit-card[open] summary { padding-bottom:14px; border-bottom:1px solid #e1e4dd; margin-bottom:14px; }
+.menu-edit-card textarea { width:100%; min-height:80px; box-sizing:border-box; font:inherit; border:1px solid #d8dcd7; border-radius:8px; padding:8px; }
+@media(max-width:640px) {
+ .menu-browser-controls { display:grid; grid-template-columns:minmax(0,1fr); }
+ .menu-items-grid { grid-template-columns:minmax(0,1fr); }
+ .menu-select-item { gap:12px; }
+ .menu-pagination { gap:10px; }
+}

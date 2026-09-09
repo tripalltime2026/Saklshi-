@@ -1,0 +1,1222 @@
+[
+  {
+    "source_key": "photo-20260909-1-1",
+    "category": "აპეტაიზერი",
+    "name": "ქართული ყველის დაფა",
+    "name_en": "Georgian cheese board",
+    "price": 3500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 0
+  },
+  {
+    "source_key": "photo-20260909-1-2",
+    "category": "აპეტაიზერი",
+    "name": "ხრაშუნა სულგუნის ჩხირები",
+    "name_en": "Crispy sulguni cheese sticks",
+    "price": 2400,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1
+  },
+  {
+    "source_key": "photo-20260909-1-3",
+    "category": "აპეტაიზერი",
+    "name": "ნადუღი პიტნით",
+    "name_en": "Nadughi with mint",
+    "price": 1500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2
+  },
+  {
+    "source_key": "photo-20260909-1-4",
+    "category": "აპეტაიზერი",
+    "name": "ეკალა",
+    "name_en": "Ekala",
+    "price": 3000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 3
+  },
+  {
+    "source_key": "photo-20260909-1-5",
+    "category": "აპეტაიზერი",
+    "name": "სეზონური ფხალის ნაირსახეობა",
+    "name_en": "Variety of seasonal pkhali",
+    "price": 3000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 4
+  },
+  {
+    "source_key": "photo-20260909-1-6",
+    "category": "აპეტაიზერი",
+    "name": "მწნილის ნაირსახეობა",
+    "name_en": "Variety of pickles",
+    "price": 1500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 5
+  },
+  {
+    "source_key": "photo-20260909-1-7",
+    "category": "აპეტაიზერი",
+    "name": "ლავაშის ჩიფსები",
+    "name_en": "Lavash chips",
+    "price": 700,
+    "description": "",
+    "description_en": "",
+    "sort_order": 6
+  },
+  {
+    "source_key": "photo-20260909-1-8",
+    "category": "აპეტაიზერი",
+    "name": "ქათმის ბატი-ბუტი",
+    "name_en": "Chicken popcorn",
+    "price": 2000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 7
+  },
+  {
+    "source_key": "photo-20260909-1-9",
+    "category": "აპეტაიზერი",
+    "name": "იმერული ყველი",
+    "name_en": "Imeretian cheese",
+    "price": 1700,
+    "description": "",
+    "description_en": "",
+    "sort_order": 8
+  },
+  {
+    "source_key": "photo-20260909-1-10",
+    "category": "აპეტაიზერი",
+    "name": "სულგუნი",
+    "name_en": "Sulguni",
+    "price": 2400,
+    "description": "",
+    "description_en": "",
+    "sort_order": 9
+  },
+  {
+    "source_key": "photo-20260909-1-11",
+    "category": "აპეტაიზერი",
+    "name": "შებოლილი სულგუნი",
+    "name_en": "Smoked sulguni",
+    "price": 2600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 10
+  },
+  {
+    "source_key": "photo-20260909-2-1",
+    "category": "ცივი კერძები",
+    "name": "კიტრი პომიდვრის სალათი კლასიკურად",
+    "name_en": "Cucumber and tomato salad",
+    "price": 1500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 100
+  },
+  {
+    "source_key": "photo-20260909-2-2",
+    "category": "ცივი კერძები",
+    "name": "კიტრი პომიდვრის სალათი კახური ზეთით",
+    "name_en": "Cucumber and tomato salad with Kakhetian oil",
+    "price": 1700,
+    "description": "",
+    "description_en": "",
+    "sort_order": 101
+  },
+  {
+    "source_key": "photo-20260909-2-3",
+    "category": "ცივი კერძები",
+    "name": "კიტრი პომიდვრის სალათი ნიგვზით და ჯონჯოლით",
+    "name_en": "Cucumber and tomato salad with walnuts and jonjoli",
+    "price": 2000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 102
+  },
+  {
+    "source_key": "photo-20260909-2-4",
+    "category": "ცივი კერძები",
+    "name": "გებჟალიას სალათი",
+    "name_en": "Gebzhaliya salad",
+    "price": 3000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 103
+  },
+  {
+    "source_key": "photo-20260909-2-5",
+    "category": "ცივი კერძები",
+    "name": "ღორის კუჭმაჭი ტყემლით",
+    "name_en": "Pork stew with tkemli",
+    "price": 2500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 104
+  },
+  {
+    "source_key": "photo-20260909-2-6",
+    "category": "ცივი კერძები",
+    "name": "მწყემსური სალათი",
+    "name_en": "Shepherd's salad",
+    "price": 3000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 105
+  },
+  {
+    "source_key": "photo-20260909-2-7",
+    "category": "ცივი კერძები",
+    "name": "ლობიოს სალათი",
+    "name_en": "Bean salad",
+    "price": 2000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 106
+  },
+  {
+    "source_key": "photo-20260909-3-1",
+    "category": "წვნიანი",
+    "name": "ხინკლუკას წვნიანი შებოლილი სულგუნით",
+    "name_en": "Khinkluka soup with smoked sulguni",
+    "price": 2300,
+    "description": "",
+    "description_en": "",
+    "sort_order": 200
+  },
+  {
+    "source_key": "photo-20260909-3-2",
+    "category": "წვნიანი",
+    "name": "ხინკლის წვნიანი ტყლაპით",
+    "name_en": "Khinkli soup with tklapi",
+    "price": 1500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 201
+  },
+  {
+    "source_key": "photo-20260909-3-3",
+    "category": "წვნიანი",
+    "name": "ჩიხირთმა სოფლის დედლით",
+    "name_en": "Chikhirtma",
+    "price": 1800,
+    "description": "",
+    "description_en": "",
+    "sort_order": 202
+  },
+  {
+    "source_key": "photo-20260909-3-4",
+    "category": "წვნიანი",
+    "name": "სუპ-ხარჩო",
+    "name_en": "Soup-kharcho",
+    "price": 2800,
+    "description": "",
+    "description_en": "",
+    "sort_order": 203
+  },
+  {
+    "source_key": "photo-20260909-3-5",
+    "category": "წვნიანი",
+    "name": "სოკოს წვნიანი",
+    "name_en": "Mushroom soup",
+    "price": 1500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 204
+  },
+  {
+    "source_key": "photo-20260909-3-6",
+    "category": "წვნიანი",
+    "name": "ხაში",
+    "name_en": "Khashi",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 205
+  },
+  {
+    "source_key": "photo-20260909-4-1",
+    "category": "ჩვენთან გამომცხვარი",
+    "name": "კეცის ხაჭაპური",
+    "name_en": "Ketsi's khachapuri",
+    "price": 2500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 300
+  },
+  {
+    "source_key": "photo-20260909-4-2",
+    "category": "ჩვენთან გამომცხვარი",
+    "name": "ტაფის ხაჭაპური",
+    "name_en": "Khachapuri on pan",
+    "price": 2200,
+    "description": "",
+    "description_en": "",
+    "sort_order": 301
+  },
+  {
+    "source_key": "photo-20260909-4-3",
+    "category": "ჩვენთან გამომცხვარი",
+    "name": "ჭახრაკინა",
+    "name_en": "Chakhrakina",
+    "price": 2200,
+    "description": "",
+    "description_en": "",
+    "sort_order": 302
+  },
+  {
+    "source_key": "photo-20260909-4-4",
+    "category": "ჩვენთან გამომცხვარი",
+    "name": "ჭვიშტარი პიტნით",
+    "name_en": "Chvishtari with mint",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 303
+  },
+  {
+    "source_key": "photo-20260909-4-5",
+    "category": "ჩვენთან გამომცხვარი",
+    "name": "მჭადი კეცზე",
+    "name_en": "Mchadi on ketsi",
+    "price": 500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 304
+  },
+  {
+    "source_key": "photo-20260909-4-6",
+    "category": "ჩვენთან გამომცხვარი",
+    "name": "ლობიანი",
+    "name_en": "Lobiani",
+    "price": 1600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 305
+  },
+  {
+    "source_key": "photo-20260909-4-7",
+    "category": "ჩვენთან გამომცხვარი",
+    "name": "ლობიანი ლორითა და ჯონჯოლით",
+    "name_en": "Lobiani with ham and jonjoli",
+    "price": 2200,
+    "description": "",
+    "description_en": "",
+    "sort_order": 306
+  },
+  {
+    "source_key": "photo-20260909-4-8",
+    "category": "ჩვენთან გამომცხვარი",
+    "name": "სახლური პიცა",
+    "name_en": "Sakhli's pizza",
+    "price": 3200,
+    "description": "",
+    "description_en": "",
+    "sort_order": 307
+  },
+  {
+    "source_key": "photo-20260909-4-9",
+    "category": "ჩვენთან გამომცხვარი",
+    "name": "სახლური პური",
+    "name_en": "Sakhli's bread",
+    "price": 500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 308
+  },
+  {
+    "source_key": "photo-20260909-5-1",
+    "category": "მთავარი კერძები",
+    "name": "რაჭული გობი",
+    "name_en": "Rachian gobi",
+    "price": 12500,
+    "description": "ლობიო რაჭული ლორით, ლორი დაჭრილი, ყველი იმერული შებოლილი, ლობიანი, კ/პ სალათი ნიგვზით, მჟავე კიტრი.",
+    "description_en": "Beans with Rachuli ham, sliced ham, Imeretian cheese, Georgian salad, salad with walnuts, pickled cucumber.",
+    "sort_order": 400
+  },
+  {
+    "source_key": "photo-20260909-5-2",
+    "category": "მთავარი კერძები",
+    "name": "იმერული გობი",
+    "name_en": "Imeretian gobi",
+    "price": 11000,
+    "description": "კიტრი, პომიდორი, ყველი, მჭადი, მჟავე სალათი, ფხალის 4 გუნდა, ბადრიჯანი 2, სახლური ტაფის, წიწილა ტყემალში, ბოლოკი, მწვანილის მიქსი.",
+    "description_en": "Cucumber, tomato, cheese, mchadi (cornbread), pickled salad, pkhali assortment of 4, eggplant rolls – 2 pcs, pan khachapuri, chicken in tkemali sauce, radish, fresh herb mix.",
+    "sort_order": 401
+  },
+  {
+    "source_key": "photo-20260909-5-3",
+    "category": "მთავარი კერძები",
+    "name": "ამოლესილი ლობიო, მჟავის სალათით და კეცის მჭადით",
+    "name_en": "Roasted bean, with sour salad and ketsi mchadi",
+    "price": 1600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 402
+  },
+  {
+    "source_key": "photo-20260909-5-4",
+    "category": "მთავარი კერძები",
+    "name": "ვარია წითელ ტყემალში",
+    "name_en": "Varia in red tkemali",
+    "price": 4000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 403
+  },
+  {
+    "source_key": "photo-20260909-5-5",
+    "category": "მთავარი კერძები",
+    "name": "იმერული კუპატი ბროწეულის სოუსით",
+    "name_en": "Imeretian kupati with pomegranate sauce",
+    "price": 3500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 404
+  },
+  {
+    "source_key": "photo-20260909-5-6",
+    "category": "მთავარი კერძები",
+    "name": "ხბოს ჩაშუშული საფერავში გამომცხვარი პიურეთი",
+    "name_en": "Stewed veal baked in saperavi puree",
+    "price": 2700,
+    "description": "",
+    "description_en": "",
+    "sort_order": 405
+  },
+  {
+    "source_key": "photo-20260909-5-7",
+    "category": "მთავარი კერძები",
+    "name": "ხბოს ოჯახური",
+    "name_en": "Veal ojakhuri",
+    "price": 2600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 406
+  },
+  {
+    "source_key": "photo-20260909-5-8",
+    "category": "მთავარი კერძები",
+    "name": "ღორის ოჯახური",
+    "name_en": "Pork ojakhuri",
+    "price": 2100,
+    "description": "",
+    "description_en": "",
+    "sort_order": 407
+  },
+  {
+    "source_key": "photo-20260909-5-9",
+    "category": "მთავარი კერძები",
+    "name": "საქონლის სუკის ოსტრი პიურეთი",
+    "name_en": "Oyster puree of beef suki",
+    "price": 3600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 408
+  },
+  {
+    "source_key": "photo-20260909-5-10",
+    "category": "მთავარი კერძები",
+    "name": "აფხაზურა, მეგრული აჯიკის პიურეთი და წითელი ღვინის სოუსით",
+    "name_en": "Abkhazura, with Megrelian adjika puree and red wine sauce",
+    "price": 3200,
+    "description": "",
+    "description_en": "",
+    "sort_order": 409
+  },
+  {
+    "source_key": "photo-20260909-5-11",
+    "category": "მთავარი კერძები",
+    "name": "წიწილა შქმერულად",
+    "name_en": "Chicken in shkmeruli",
+    "price": 4500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 410
+  },
+  {
+    "source_key": "photo-20260909-5-12",
+    "category": "მთავარი კერძები",
+    "name": "შებრაწული გულ-ღვიძლი",
+    "name_en": "Fried heart and liver",
+    "price": 2200,
+    "description": "",
+    "description_en": "",
+    "sort_order": 411
+  },
+  {
+    "source_key": "photo-20260909-5-13",
+    "category": "მთავარი კერძები",
+    "name": "შემწვარი კალმახი",
+    "name_en": "Grilled trout",
+    "price": 2400,
+    "description": "",
+    "description_en": "",
+    "sort_order": 412
+  },
+  {
+    "source_key": "photo-20260909-5-14",
+    "category": "მთავარი კერძები",
+    "name": "ტაფის აჯაფსანდალი",
+    "name_en": "Ajapsandal on a pan",
+    "price": 1800,
+    "description": "",
+    "description_en": "",
+    "sort_order": 413
+  },
+  {
+    "source_key": "photo-20260909-5-15",
+    "category": "მთავარი კერძები",
+    "name": "კარტოფილი სახლურად",
+    "name_en": "Homemade potatoes",
+    "price": 1500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 414
+  },
+  {
+    "source_key": "photo-20260909-5-16",
+    "category": "მთავარი კერძები",
+    "name": "გამომცხვარი საქონლის ნეკნები გრილზე",
+    "name_en": "Grilled beef ribs",
+    "price": 6500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 415
+  },
+  {
+    "source_key": "photo-20260909-5-17",
+    "category": "მთავარი კერძები",
+    "name": "ხბოს ნეკნები",
+    "name_en": "Veal ribs",
+    "price": 6500,
+    "description": "იმერული პამიდვრის აჯიკით და შემწვარი კარტოფილი",
+    "description_en": "With Imeretian tomato adjika and fried potatoes",
+    "sort_order": 416
+  },
+  {
+    "source_key": "photo-20260909-5-18",
+    "category": "მთავარი კერძები",
+    "name": "ტაფაზე შებრაწული წიწილა კენკრაში გამომცხვარი მსხლით",
+    "name_en": "Frying chicken with pears baked in berries",
+    "price": 6500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 417
+  },
+  {
+    "source_key": "photo-20260909-5-19",
+    "category": "მთავარი კერძები",
+    "name": "ხაშლამა ნიახურის პიურეთი და გამომცხვარი ნიორით",
+    "name_en": "Khashlama with celery puree and roasted garlic",
+    "price": 6500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 418
+  },
+  {
+    "source_key": "photo-20260909-6-1",
+    "category": "მაყალი",
+    "name": "ღორის მწვადი",
+    "name_en": "Pork mtsvadi",
+    "price": 2700,
+    "description": "",
+    "description_en": "",
+    "sort_order": 500
+  },
+  {
+    "source_key": "photo-20260909-6-2",
+    "category": "მაყალი",
+    "name": "ხბოს მწვადი",
+    "name_en": "Veal mtsvadi",
+    "price": 4000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 501
+  },
+  {
+    "source_key": "photo-20260909-6-3",
+    "category": "მაყალი",
+    "name": "ქათმის მწვადი",
+    "name_en": "Chicken mtsvadi",
+    "price": 2000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 502
+  },
+  {
+    "source_key": "photo-20260909-6-4",
+    "category": "მაყალი",
+    "name": "შერეული ქაბაბი საწებელში",
+    "name_en": "Mixed kebab in sauce",
+    "price": 2600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 503
+  },
+  {
+    "source_key": "photo-20260909-6-5",
+    "category": "მაყალი",
+    "name": "ქაბაბი ბებოს ლავაშში",
+    "name_en": "Kebab in grandma's lavash",
+    "price": 2600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 504
+  },
+  {
+    "source_key": "photo-20260909-7-1",
+    "category": "სახლური ხემსი",
+    "name": "კუპატის ხვეულა",
+    "name_en": "Kupatti roll",
+    "price": 1700,
+    "description": "",
+    "description_en": "",
+    "sort_order": 600
+  },
+  {
+    "source_key": "photo-20260909-7-2",
+    "category": "სახლური ხემსი",
+    "name": "ქაბაბის ხვეულა",
+    "name_en": "Kebab roll",
+    "price": 1700,
+    "description": "",
+    "description_en": "",
+    "sort_order": 601
+  },
+  {
+    "source_key": "photo-20260909-7-3",
+    "category": "სახლური ხემსი",
+    "name": "ქათმის სტეიკის ხვეულა",
+    "name_en": "Chicken steak roll",
+    "price": 1600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 602
+  },
+  {
+    "source_key": "photo-20260909-7-4",
+    "category": "სახლური ხემსი",
+    "name": "ქათმის სტეიკის ბოქსი",
+    "name_en": "Chicken steak box",
+    "price": 1600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 603
+  },
+  {
+    "source_key": "photo-20260909-7-5",
+    "category": "სახლური ხემსი",
+    "name": "კუბდარი ბაგეტში",
+    "name_en": "Kubdari in a baguette",
+    "price": 1700,
+    "description": "",
+    "description_en": "",
+    "sort_order": 604
+  },
+  {
+    "source_key": "photo-20260909-8-1",
+    "category": "სოუსები",
+    "name": "ტყემალი",
+    "name_en": "Tkemali sauce",
+    "price": 500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 700
+  },
+  {
+    "source_key": "photo-20260909-8-2",
+    "category": "სოუსები",
+    "name": "საწებელი",
+    "name_en": "Satsebeli sauce",
+    "price": 500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 701
+  },
+  {
+    "source_key": "photo-20260909-8-3",
+    "category": "სოუსები",
+    "name": "ბაჟე",
+    "name_en": "Baje",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 702
+  },
+  {
+    "source_key": "photo-20260909-9-1",
+    "category": "ხინკალი",
+    "name": "ქალაქური",
+    "name_en": "Kalakuri",
+    "price": 240,
+    "description": "",
+    "description_en": "",
+    "sort_order": 800
+  },
+  {
+    "source_key": "photo-20260909-9-2",
+    "category": "ხინკალი",
+    "name": "მთიულური",
+    "name_en": "Mtiuluri",
+    "price": 240,
+    "description": "",
+    "description_en": "",
+    "sort_order": 801
+  },
+  {
+    "source_key": "photo-20260909-9-3",
+    "category": "ხინკალი",
+    "name": "ყველის ხინკალი",
+    "name_en": "Cheese khinkali",
+    "price": 400,
+    "description": "",
+    "description_en": "",
+    "sort_order": 802
+  },
+  {
+    "source_key": "photo-20260909-9-4",
+    "category": "ხინკალი",
+    "name": "სოკოს ხინკალი",
+    "name_en": "Mushroom khinkali",
+    "price": 210,
+    "description": "",
+    "description_en": "",
+    "sort_order": 803
+  },
+  {
+    "source_key": "photo-20260909-9-5",
+    "category": "ხინკალი",
+    "name": "კარტოფილის ხინკალი",
+    "name_en": "Potato khinkali",
+    "price": 180,
+    "description": "",
+    "description_en": "",
+    "sort_order": 804
+  },
+  {
+    "source_key": "photo-20260909-10-1",
+    "category": "დესერტები",
+    "name": "მთის თაფლიანი ნამცხვარი",
+    "name_en": "Mountain honey cake",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 900
+  },
+  {
+    "source_key": "photo-20260909-10-2",
+    "category": "დესერტები",
+    "name": "სახლური დესერტი",
+    "name_en": "Homemade dessert",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 901
+  },
+  {
+    "source_key": "photo-20260909-11-1",
+    "category": "ყავა / ჩაი",
+    "name": "ესპრესო",
+    "name_en": "Espresso",
+    "price": 600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1000
+  },
+  {
+    "source_key": "photo-20260909-11-2",
+    "category": "ყავა / ჩაი",
+    "name": "ამერიკანო",
+    "name_en": "Americano",
+    "price": 700,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1001
+  },
+  {
+    "source_key": "photo-20260909-11-3",
+    "category": "ყავა / ჩაი",
+    "name": "კაპუჩინო",
+    "name_en": "Cappuccino",
+    "price": 800,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1002
+  },
+  {
+    "source_key": "photo-20260909-11-4",
+    "category": "ყავა / ჩაი",
+    "name": "ლატე",
+    "name_en": "Latte",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1003
+  },
+  {
+    "source_key": "photo-20260909-11-5",
+    "category": "ყავა / ჩაი",
+    "name": "ფლეთ უაითი",
+    "name_en": "Cold coffee/ice-cream",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1004
+  },
+  {
+    "source_key": "photo-20260909-11-6",
+    "category": "ყავა / ჩაი",
+    "name": "ცივი ყავა/ნაყინით",
+    "name_en": "Cold coffee/ice-cream",
+    "price": 1200,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1005
+  },
+  {
+    "source_key": "photo-20260909-12-1",
+    "category": "უალკოჰოლო სასმელები",
+    "name": "წყალი",
+    "name_en": "Water",
+    "price": 300,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1100
+  },
+  {
+    "source_key": "photo-20260909-12-2",
+    "category": "უალკოჰოლო სასმელები",
+    "name": "წვენი",
+    "name_en": "Juice",
+    "price": 600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1101
+  },
+  {
+    "source_key": "photo-20260909-12-3",
+    "category": "უალკოჰოლო სასმელები",
+    "name": "ტონიკი",
+    "name_en": "Tonic",
+    "price": 600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1102
+  },
+  {
+    "source_key": "photo-20260909-12-4",
+    "category": "უალკოჰოლო სასმელები",
+    "name": "მინერალური წყალი",
+    "name_en": "Sparkling water",
+    "price": 400,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1103
+  },
+  {
+    "source_key": "photo-20260909-12-5",
+    "category": "უალკოჰოლო სასმელები",
+    "name": "ლიმონათი",
+    "name_en": "Limonade",
+    "price": 600,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1104
+  },
+  {
+    "source_key": "photo-20260909-12-6",
+    "category": "უალკოჰოლო სასმელები",
+    "name": "სახლური ლიმონათი",
+    "name_en": "Homemade limonade",
+    "price": 1500,
+    "description": "ციტრუსი / კენკრა / პიტნა",
+    "description_en": "",
+    "sort_order": 1105
+  },
+  {
+    "source_key": "photo-20260909-13-1",
+    "category": "კოქტეილები",
+    "name": "ლონგ აილენდი",
+    "name_en": "Long Island",
+    "price": 2500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1200
+  },
+  {
+    "source_key": "photo-20260909-13-2",
+    "category": "კოქტეილები",
+    "name": "ლურჯი ლაგუნა",
+    "name_en": "Blue Lagoon",
+    "price": 2500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1201
+  },
+  {
+    "source_key": "photo-20260909-13-3",
+    "category": "კოქტეილები",
+    "name": "ტეკილა სანრაიზი",
+    "name_en": "Tequila Sunrise",
+    "price": 2000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1202
+  },
+  {
+    "source_key": "photo-20260909-13-4",
+    "category": "კოქტეილები",
+    "name": "არაყი და წვენი",
+    "name_en": "Vodka juice",
+    "price": 1800,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1203
+  },
+  {
+    "source_key": "photo-20260909-13-5",
+    "category": "კოქტეილები",
+    "name": "ჯინ ტონიკი",
+    "name_en": "Gin and tonic",
+    "price": 1800,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1204
+  },
+  {
+    "source_key": "photo-20260909-13-6",
+    "category": "კოქტეილები",
+    "name": "რომი და წვენი",
+    "name_en": "Rum and juice",
+    "price": 1800,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1205
+  },
+  {
+    "source_key": "photo-20260909-14-1",
+    "category": "ტეკილა",
+    "name": "ტეკილა ოლმეკა",
+    "name_en": "Tequila Olmeca",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1300
+  },
+  {
+    "source_key": "photo-20260909-15-1",
+    "category": "რომი",
+    "name": "ბაკარდი — თეთრი",
+    "name_en": "Bacardi White",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1400
+  },
+  {
+    "source_key": "photo-20260909-15-2",
+    "category": "რომი",
+    "name": "კაპიტან მორგან შავი",
+    "name_en": "Captain Morgan Black",
+    "price": 1100,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1401
+  },
+  {
+    "source_key": "photo-20260909-15-3",
+    "category": "რომი",
+    "name": "მალიბუ",
+    "name_en": "Malibu",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1402
+  },
+  {
+    "source_key": "photo-20260909-16-1",
+    "category": "არაყი",
+    "name": "სტალიჩნაია",
+    "name_en": "Stolichnaia",
+    "price": 1000,
+    "description": "0.5L / 1L",
+    "description_en": "",
+    "sort_order": 1500
+  },
+  {
+    "source_key": "photo-20260909-16-2",
+    "category": "არაყი",
+    "name": "აბსოლუტი",
+    "name_en": "Absolute Blue",
+    "price": 900,
+    "description": "0.5L / 1L",
+    "description_en": "",
+    "sort_order": 1501
+  },
+  {
+    "source_key": "photo-20260909-16-3",
+    "category": "არაყი",
+    "name": "ფინლანდია",
+    "name_en": "Finlandia",
+    "price": 1000,
+    "description": "0.5L / 1L",
+    "description_en": "",
+    "sort_order": 1502
+  },
+  {
+    "source_key": "photo-20260909-17-1",
+    "category": "ჯინი",
+    "name": "გორდონი",
+    "name_en": "Gordons",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1600
+  },
+  {
+    "source_key": "photo-20260909-18-1",
+    "category": "ვისკი",
+    "name": "ჯეიმსონი",
+    "name_en": "Jameson",
+    "price": 1200,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1700
+  },
+  {
+    "source_key": "photo-20260909-19-1",
+    "category": "ლიქიორი",
+    "name": "კუანტრო",
+    "name_en": "Cointreau",
+    "price": 1200,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1800
+  },
+  {
+    "source_key": "photo-20260909-20-1",
+    "category": "ლუდი",
+    "name": "შავი ლომი 0.5",
+    "name_en": "Black Lion 0.5",
+    "price": 1000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 1900
+  },
+  {
+    "source_key": "photo-20260909-21-1",
+    "category": "თეთრი მშრალი ღვინო",
+    "name": "თელიანის ველი — ხიხვი",
+    "name_en": "Teliani Valley — Khikhvi",
+    "price": 5500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2000
+  },
+  {
+    "source_key": "photo-20260909-21-2",
+    "category": "თეთრი მშრალი ღვინო",
+    "name": "თელიანი ველი — ცოლიკოური",
+    "name_en": "Teliani Valley — Tsolikauri",
+    "price": 5000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2001
+  },
+  {
+    "source_key": "photo-20260909-21-3",
+    "category": "თეთრი მშრალი ღვინო",
+    "name": "ფრენდს ვაინ — წინანდალი",
+    "name_en": "Friends Wine — Tsinandali",
+    "price": 5500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2002
+  },
+  {
+    "source_key": "photo-20260909-21-4",
+    "category": "თეთრი მშრალი ღვინო",
+    "name": "ვინივერია — ქისი",
+    "name_en": "Wineveria — Kisi",
+    "price": 5500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2003
+  },
+  {
+    "source_key": "photo-20260909-21-5",
+    "category": "თეთრი მშრალი ღვინო",
+    "name": "ვინივერია — ცოლიკოური",
+    "name_en": "Wineveria — Tsolikauri",
+    "price": 5000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2004
+  },
+  {
+    "source_key": "photo-20260909-21-6",
+    "category": "თეთრი მშრალი ღვინო",
+    "name": "ჭელტი — ქისი ქვევრი",
+    "name_en": "Chelti — Kisi Kvevri",
+    "price": 7000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2005
+  },
+  {
+    "source_key": "photo-20260909-21-7",
+    "category": "თეთრი მშრალი ღვინო",
+    "name": "ჭელტი — კრახუნა",
+    "name_en": "Chelti — Krakhuna",
+    "price": 6500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2006
+  },
+  {
+    "source_key": "photo-20260909-21-8",
+    "category": "თეთრი მშრალი ღვინო",
+    "name": "ქართული მზე — რქაწითელი",
+    "name_en": "Georgian Sun — Rkatsiteli",
+    "price": 4800,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2007
+  },
+  {
+    "source_key": "photo-20260909-22-1",
+    "category": "თეთრი ნახევრად ტკბილი ღვინო",
+    "name": "ფრენდს ვაინ — ტვიში",
+    "name_en": "Friends Wine — Tvishi",
+    "price": 6500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2100
+  },
+  {
+    "source_key": "photo-20260909-23-1",
+    "category": "როზე",
+    "name": "ცქრიალა როზე — თელიანი ველი",
+    "name_en": "Sparkling Roze — Teliani Veli",
+    "price": 5000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2200
+  },
+  {
+    "source_key": "photo-20260909-24-1",
+    "category": "წითელი მშრალი ღვინო",
+    "name": "თელიანის ველი — საფერავი",
+    "name_en": "Teliani Valley — Saperavi",
+    "price": 5000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2300
+  },
+  {
+    "source_key": "photo-20260909-24-2",
+    "category": "წითელი მშრალი ღვინო",
+    "name": "ვინივერია — საფერავი",
+    "name_en": "Wineveria — Saperavi",
+    "price": 5000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2301
+  },
+  {
+    "source_key": "photo-20260909-24-3",
+    "category": "წითელი მშრალი ღვინო",
+    "name": "ორგო — Cuvée",
+    "name_en": "Orgo — Cuvée",
+    "price": 8000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2302
+  },
+  {
+    "source_key": "photo-20260909-25-1",
+    "category": "წითელი ნახევრად ტკბილი ღვინო",
+    "name": "ფრენდს ვაინ — ქინძმარაული",
+    "name_en": "Friends Wine — Kindzmarauli",
+    "price": 6500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2400
+  },
+  {
+    "source_key": "photo-20260909-25-2",
+    "category": "წითელი ნახევრად ტკბილი ღვინო",
+    "name": "ფრენდს ვაინ — ხვანჭკარა",
+    "name_en": "Friends Wine — Khvanchkara",
+    "price": 8000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2401
+  },
+  {
+    "source_key": "photo-20260909-25-3",
+    "category": "წითელი ნახევრად ტკბილი ღვინო",
+    "name": "ქართული მზე — ქინძმარაული",
+    "name_en": "Georgian Sun — Kindzmarauli",
+    "price": 6000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2402
+  },
+  {
+    "source_key": "photo-20260909-25-4",
+    "category": "წითელი ნახევრად ტკბილი ღვინო",
+    "name": "სამეფო ხვანჭკარა — ხვანჭკარა",
+    "name_en": "Royal Khvanchkara — Khvanchkara",
+    "price": 9000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2403
+  },
+  {
+    "source_key": "photo-20260909-26-1",
+    "category": "ცქრიალა ღვინო",
+    "name": "ფრენდს ვაინ — ქინძმარაული",
+    "name_en": "Friends Wine — Kindzmarauli",
+    "price": 6500,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2500
+  },
+  {
+    "source_key": "photo-20260909-26-2",
+    "category": "ცქრიალა ღვინო",
+    "name": "ფრენდს ვაინ — ხვანჭკარა",
+    "name_en": "Friends Wine — Khvanchkara",
+    "price": 8000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2501
+  },
+  {
+    "source_key": "photo-20260909-26-3",
+    "category": "ცქრიალა ღვინო",
+    "name": "ქართული მზე — ქინძმარაული",
+    "name_en": "Georgian Sun — Kindzmarauli",
+    "price": 6000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2502
+  },
+  {
+    "source_key": "photo-20260909-26-4",
+    "category": "ცქრიალა ღვინო",
+    "name": "სამეფო ხვანჭკარა — ხვანჭკარა",
+    "name_en": "Royal Khvanchkara — Khvanchkara",
+    "price": 9000,
+    "description": "",
+    "description_en": "",
+    "sort_order": 2503
+  }
+]

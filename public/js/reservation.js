@@ -147,6 +147,9 @@
             const value = row.querySelector('[data-counter-value]');
             const qty = Math.max(0, Math.min(20, Number(input.value) || 0));
             input.value = String(qty);
+            input.disabled = qty === 0;
+            row.querySelector('[data-counter-minus]').disabled = qty === 0;
+            row.querySelector('[data-counter-plus]').disabled = qty === 20;
             value.textContent = String(qty);
 
             if (qty > 0) row.classList.add('selected');
@@ -156,6 +159,7 @@
             totalCents += qty * Number(row.dataset.price || 0);
         });
 
+        document.dispatchEvent(new Event('menu:changed'));
         if (menuCount) menuCount.textContent = String(totalQty);
         if (menuTotal) menuTotal.textContent = (totalCents / 100).toFixed(2) + ' ₾';
 
@@ -271,3 +275,4 @@
     recalcMenu();
     updateSummary();
 })();
+
