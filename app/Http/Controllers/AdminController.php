@@ -92,7 +92,7 @@ class AdminController extends Controller
                     ->values();
 
                 $tables = DiningTable::query()->orderBy('id')->get();
-                $menu = MenuItem::query()->orderBy('category')->orderBy('name')->get();
+                $menu = MenuItem::query()->orderBy('category')->orderBy('sort_order')->orderBy('name')->get();
 
                 $todayReservations = Reservation::query()
                     ->with('items')
@@ -304,6 +304,9 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:160'],
+            'name_en' => ['nullable', 'string', 'max:240'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'description_en' => ['nullable', 'string', 'max:2000'],
             'category' => ['required', 'string', 'max:120'],
             'custom_category' => ['nullable', 'string', 'max:120'],
             'price_gel' => ['required', 'numeric', 'min:0', 'max:10000'],
@@ -312,6 +315,9 @@ class AdminController extends Controller
 
         return [
             'name' => trim($validated['name']),
+            'name_en' => trim($validated['name_en'] ?? ''),
+            'description' => trim($validated['description'] ?? ''),
+            'description_en' => trim($validated['description_en'] ?? ''),
             'category' => trim((string) ($validated['custom_category'] ?? '')) ?: trim($validated['category']),
             'price' => (int) round(((float) $validated['price_gel']) * 100),
             'active' => (bool) ($validated['active'] ?? false),
@@ -342,3 +348,4 @@ class AdminController extends Controller
         ];
     }
 }
+

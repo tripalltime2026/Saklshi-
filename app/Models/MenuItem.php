@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MenuItem extends Model
 {
-    protected $fillable = ['name', 'category', 'price', 'active'];
+    protected $fillable = ['name', 'name_en', 'description', 'description_en', 'category', 'price', 'active', 'sort_order'];
 
     protected function casts(): array
     {
@@ -16,3 +16,4 @@ class MenuItem extends Model
         ];
     }
 }
+

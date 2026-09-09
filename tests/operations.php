@@ -97,5 +97,31 @@ $line = $second->items()->first();
 check($line && $line->menu_item_id === null && $line->name === 'Test hot dish' && (int) $line->unit_price === 1825 && (int) $line->quantity === 2, 'Deletion preserves historical order details');
 check(! $controller->index()->getData()['menu']->contains('id', $dish->id), 'Deleted dish unavailable for new reservations');
 
+// Photo import, fractional prices and admin edits must survive repeat deployments.
+check(App\Models\MenuItem::whereNotNull('source_key')->count() === 122, 'All photo menu positions imported');
+$khinkali = App\Models\MenuItem::where('name', 'ქალაქური')->firstOrFail();
+check($khinkali->price === 240 && $khinkali->category === 'ხინკალი', 'Khinkali price is 2.40 GEL');
+check(App\Models\MenuItem::where('name', 'წყალი')->firstOrFail()->price === 300, 'Water price matches photo');
+$khinkali->update(['price' => 250, 'active' => false]);
+(new Database\Seeders\PhotoMenuSeeder)->run();
+check($khinkali->fresh()->price === 250 && ! $khinkali->fresh()->active, 'Repeat import preserves admin price and visibility');
+$khinkali->update(['price' => 240, 'active' => true]);
+$guestHtml = $controller->index()->render();
+check(str_contains($guestHtml, 'data-menu-category') && str_contains($guestHtml, 'data-menu-search'), 'Guest menu renders category selection and search');
+check(str_contains($guestHtml, '2.40') && str_contains($guestHtml, 'data-menu-pagination'), 'Fractional prices and pagination render');
+// More than 30 selected positions must not be silently dropped.
+$ordered = App\Models\MenuItem::where('active', true)->limit(31)->get();
+$menuBooking = $data;
+$menuBooking['visit_time'] = '18:00';
+$menuBooking['items'] = $ordered->mapWithKeys(fn ($item) => [$item->id => 1])->all();
+$controller->store(req('/reservations', 'POST', $menuBooking));
+$menuReservation = App\Models\Reservation::latest('id')->firstOrFail();
+check($menuReservation->items()->count() === 31, 'All 31 selected positions persist');
+check((int) $menuReservation->items()->sum('unit_price') === (int) $ordered->sum('price'), 'Order uses exact server-side menu prices');
+$historical = $menuReservation->items()->firstOrFail();
+App\Models\MenuItem::findOrFail($historical->menu_item_id)->update(['price' => 9999]);
+check($historical->fresh()->unit_price === $historical->unit_price, 'Admin price changes preserve existing booking prices');
+
 $auth->logout(req('/admin/logout', 'POST'));
 check($guard->handle(req('/admin'), fn () => response('protected'))->getStatusCode() === 302, 'Logout protects admin again');
+

@@ -157,8 +157,20 @@
                         </div>
                     </div>
 
-                    @forelse ($menu->groupBy('category')->sortBy(fn ($items, $category) => array_flip(config('menu.categories'))[$category] ?? 999) as $category => $items)
-                        <div class="menu-category-card">
+                    @php($menuGroups = $menu->groupBy('category')->sortBy(fn ($items, $category) => array_flip(config('menu.categories'))[$category] ?? 999))
+                    <div data-menu-browser>
+                        <div class="menu-browser-controls">
+                            <label>კატეგორია<select data-menu-category aria-label="მენიუს კატეგორია">
+                                @foreach($menuGroups as $category => $items)
+                                    <option value="{{ $category }}">{{ $category }} ({{ $items->count() }})</option>
+                                @endforeach
+                            </select></label>
+                            <label>ძიება<input type="search" data-menu-search placeholder="მოძებნე კერძი ან სასმელი" aria-label="მენიუში ძიება"></label>
+                            <button type="button" data-menu-selected aria-pressed="false">არჩეული მენიუ</button>
+                        </div>
+                        <p class="menu-result-count" data-menu-result role="status"></p>
+                    @forelse ($menuGroups as $category => $items)
+                        <div class="menu-category-card" data-menu-group="{{ $category }}" @if(!$loop->first) hidden @endif>
                             <div class="menu-category-title">
                                 <h3>{{ $category }}</h3>
                                 <span>{{ $items->count() }} პოზიცია</span>
@@ -167,16 +179,19 @@
                             <div class="menu-items-grid">
                                 @foreach ($items as $item)
                                     @php($qty = (int) ($oldItems[$item->id] ?? 0))
-                                    <article class="menu-select-item" data-menu-row data-price="{{ $item->price }}">
+                                    <article class="menu-select-item" data-menu-row data-menu-entry data-category="{{ $category }}" data-search="{{ $item->name }} {{ $item->name_en }} {{ $item->description }} {{ $item->description_en }}" data-price="{{ $item->price }}">
                                         <div class="menu-select-copy">
                                             <strong>{{ $item->name }}</strong>
+                                            @if($item->name_en)<small>{{ $item->name_en }}</small>@endif
+                                            @if($item->description)<p>{{ $item->description }}</p>@endif
+                                            @if($item->description_en)<small>{{ $item->description_en }}</small>@endif
                                             <span>{{ number_format($item->price / 100, 2) }} ₾</span>
                                         </div>
                                         <div class="menu-counter">
                                             <button type="button" data-counter-minus aria-label="{{ $item->name }} შემცირება">−</button>
                                             <b data-counter-value>{{ $qty }}</b>
                                             <button type="button" data-counter-plus aria-label="{{ $item->name }} დამატება">+</button>
-                                            <input type="hidden" name="items[{{ $item->id }}]" value="{{ $qty }}" data-qty-input>
+                                            <input type="hidden" name="items[{{ $item->id }}]" value="{{ $qty }}" data-qty-input @disabled($qty === 0)>
                                         </div>
                                     </article>
                                 @endforeach
@@ -187,6 +202,13 @@
                             მენიუ მალე დაემატება. მაგიდის დაჯავშნა მენიუს არჩევის გარეშეც შეგიძლიათ.
                         </div>
                     @endforelse
+                        <div class="menu-empty-state" data-menu-no-results hidden>პოზიცია ვერ მოიძებნა.</div>
+                        <div class="menu-pagination" data-menu-pagination hidden>
+                            <button type="button" data-menu-prev>← წინა</button>
+                            <span data-menu-page></span>
+                            <button type="button" data-menu-next>შემდეგი →</button>
+                        </div>
+                    </div>
                 </section>
 
                 <div class="personal-block">
@@ -260,5 +282,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/reservation.js') }}" defer></script>
+<script src="{{ asset('js/reservation.js') }}?v=20260909-menu" defer></script>
+<script src="{{ asset('js/menu-browser.js') }}" defer></script>
 @endpush
+

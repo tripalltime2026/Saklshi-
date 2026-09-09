@@ -8,6 +8,7 @@
     <title>@yield('title', 'ბათუმის სახლში')</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin-exact.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/menu-browser.css') }}">
     @stack('head')
 </head>
 <body class="@yield('body-class')">
@@ -15,3 +16,4 @@
     @stack('scripts')
 </body>
 </html>
+

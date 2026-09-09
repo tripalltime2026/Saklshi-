@@ -32,26 +32,6 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        MenuItem::query()->where('name', 'აჭარული ხაჭაპური')->delete();
-
-        $menu = [
-            ['category' => 'ცივი კერძები', 'name' => 'ქართული ყველის ასორტი', 'price' => 2800],
-            ['category' => 'ცივი კერძები', 'name' => 'ფხალის ასორტი', 'price' => 2400],
-            ['category' => 'ცივი კერძები', 'name' => 'ბადრიჯანი ნიგვზით', 'price' => 1800],
-            ['category' => 'ცხელი კერძები', 'name' => 'ხინკალი ქალაქური', 'price' => 220],
-            ['category' => 'ცხელი კერძები', 'name' => 'ოჯახური', 'price' => 3200],
-            ['category' => 'ცხელი კერძები', 'name' => 'ჩქმერული', 'price' => 3600],
-            ['category' => 'ცომეული', 'name' => 'იმერული ხაჭაპური', 'price' => 2000],
-            ['category' => 'დესერტი', 'name' => 'ქართული ნუგბარი', 'price' => 1600],
-            ['category' => 'უალკოჰოლო', 'name' => 'ლიმონათი', 'price' => 600],
-            ['category' => 'უალკოჰოლო', 'name' => 'წყალი', 'price' => 400],
-        ];
-
-        foreach ($menu as $item) {
-            MenuItem::updateOrCreate(
-                ['name' => $item['name']],
-                $item + ['active' => true],
-            );
-        }
+        // The one-time migration imports the photo menu. Do not overwrite admin edits on redeploy.
     }
 }
