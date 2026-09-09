@@ -88,7 +88,7 @@
                 <div class="booking-grid">
                     <div class="date-column">
                         <label class="section-label"><span>1</span> აირჩიე თარიღი</label>
-                        <input type="hidden" name="visit_date" value="{{ old('visit_date', $today) }}" data-date-input>
+                        <input type="hidden" name="visit_date" value="{{ old('visit_date', $defaultVisitDate) }}" data-date-input>
 
                         <div class="calendar-card">
                             <div class="calendar-head">
@@ -105,10 +105,10 @@
 
                     <div class="time-column">
                         <label class="section-label"><span>1</span> აირჩიე დრო</label>
-                        <input type="hidden" name="visit_time" value="{{ old('visit_time', '14:00') }}" data-time-input>
+                        <input type="hidden" name="visit_time" value="{{ old('visit_time', $defaultVisitTime) }}" data-time-input>
                         <div class="time-grid" data-time-grid>
                             @foreach (['12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'] as $time)
-                                <button type="button" data-time="{{ $time }}" class="{{ old('visit_time', '14:00') === $time ? 'chosen' : '' }}">{{ $time }}</button>
+                                <button type="button" data-time="{{ $time }}" class="{{ old('visit_time', $defaultVisitTime) === $time ? 'chosen' : '' }}">{{ $time }}</button>
                             @endforeach
                         </div>
                     </div>
@@ -282,7 +282,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/reservation.js') }}?v=20260909-menu" defer></script>
+<script src="{{ asset('js/reservation.js') }}?v=20260909-booking" defer></script>
 <script src="{{ asset('js/menu-browser.js') }}" defer></script>
 @endpush
 

@@ -37,10 +37,18 @@ class ReservationController extends Controller
             $menu = collect();
         }
 
+        // Default to the next bookable whole-hour slot in the restaurant's timezone.
+        $current = now('Asia/Tbilisi');
+        $nextVisit = $current->copy()->startOfHour()->addHour();
+        if ($nextVisit->hour < 12) $nextVisit->setTime(12, 0);
+        if ($nextVisit->hour > 22) $nextVisit->addDay()->setTime(12, 0);
+
         return view('reservation', [
             'databaseReady' => $databaseReady,
             'menu' => $menu,
-            'today' => now('Asia/Tbilisi')->toDateString(),
+            'today' => $current->toDateString(),
+            'defaultVisitDate' => $nextVisit->toDateString(),
+            'defaultVisitTime' => $nextVisit->format('H:i'),
             'maxDate' => now('Asia/Tbilisi')->addDays(90)->toDateString(),
         ]);
     }
