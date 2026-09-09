@@ -125,3 +125,10 @@ check($historical->fresh()->unit_price === $historical->unit_price, 'Admin price
 $auth->logout(req('/admin/logout', 'POST'));
 check($guard->handle(req('/admin'), fn () => response('protected'))->getStatusCode() === 302, 'Logout protects admin again');
 
+
+foreach (['2026-09-09 08:10:00' => ['2026-09-09', '12:00'], '2026-09-09 19:15:00' => ['2026-09-09', '20:00'], '2026-09-09 22:10:00' => ['2026-09-10', '12:00'], '2026-09-09 23:40:00' => ['2026-09-10', '12:00']] as $clock => [$expectedDate, $expectedTime]) {
+    Illuminate\Support\Carbon::setTestNow(Illuminate\Support\Carbon::parse($clock, 'Asia/Tbilisi'));
+    $defaults = $controller->index()->getData();
+    check($defaults['defaultVisitDate'] === $expectedDate && $defaults['defaultVisitTime'] === $expectedTime, 'Booking opens on a future slot at '.$clock);
+}
+Illuminate\Support\Carbon::setTestNow();

@@ -237,6 +237,12 @@
         const params = new URLSearchParams({date: dateInput.value, start: String(hour * 60 + minute), guests: guestsInput.value});
         const key = params.toString();
         if (key === availabilityKey && Date.now() - lastChecked < 4500) return;
+        const changed = key !== availabilityKey;
+        if (changed) {
+            availableCount = null;
+            submit.disabled = true;
+            availability.textContent = 'ვამოწმებთ თავისუფალ მაგიდებს…';
+        }
         availabilityKey = key;
         lastChecked = Date.now();
         if (availabilityController) availabilityController.abort();
@@ -254,6 +260,10 @@
             when.setHours(hour, minute, 0, 0);
             // Use the server's Tbilisi time; visitors can be in another timezone.
             const past = dateInput.value + ' ' + timeInput.value <= data.local_now;
+            document.querySelectorAll('[data-time]').forEach(button => {
+                button.disabled = dateInput.value + ' ' + button.dataset.time <= data.local_now;
+                button.title = button.disabled ? 'ეს დრო უკვე გასულია' : '';
+            });
             submit.disabled = availableCount < 1 || past;
             availability.textContent = past ? 'აირჩიეთ მომავალი დრო.' : availableCount > 0
                 ? 'თავისუფალია ' + availableCount + ' შესაბამისი მაგიდა · სულ ' + data.free_seats + ' თავისუფალი ადგილი'
