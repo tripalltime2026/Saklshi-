@@ -75,8 +75,8 @@ jobs:
 
       - name: Verify preorder and live admin in browser
         run: |
-          SESSION_SECURE_COOKIE=false ADMIN_LOGIN=test-admin ADMIN_PASSWORD=ci-only-password php artisan serve --host=127.0.0.1 --port=8000 > /tmp/saklshi-browser.log 2>&1 &
+          SESSION_SECURE_COOKIE=false ADMIN_LOGIN=test-admin ADMIN_PASSWORD=ci-only-password php artisan serve --host=127.0.0.1 --port=8001 > /tmp/saklshi-browser.log 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID"' EXIT
-          for attempt in 1 2 3 4 5; do curl -sf http://localhost:8000/up && break || sleep 1; done
+          for attempt in 1 2 3 4 5; do curl -sf -o /dev/null http://localhost:8001/up && break || sleep 1; done
           node tests/booking-browser.mjs

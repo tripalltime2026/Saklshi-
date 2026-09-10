@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 const browser = await chromium.launch({headless:true});
-const context = await browser.newContext({baseURL:'http://localhost:8000'});
+const context = await browser.newContext({baseURL:'http://localhost:8001'});
 const admin = await context.newPage();
 const guest = await context.newPage();
 try {
@@ -56,4 +56,8 @@ try {
   assert.equal(lines.length,2);
   assert.equal(lines.reduce((sum,i)=>sum+i.unit_price*i.quantity,0),3180);
   console.log('PASS: browser selection -> HTTP booking -> confirmation -> automatic admin refresh -> full export');
+} catch (error) {
+  console.error('Admin page:', await admin.locator('body').innerText());
+  console.error('Guest page:', await guest.locator('body').innerText());
+  throw error;
 } finally { await browser.close(); }
