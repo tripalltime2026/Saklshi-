@@ -21,6 +21,9 @@ Route::post('/admin/login', [AdminAuthController::class, 'login'])
 
 Route::prefix('admin')->middleware('saklshi.admin')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/live', [AdminController::class, 'live'])->name('admin.live');
+    Route::get('/export/{type}', [\App\Http\Controllers\AdminExportController::class, 'download'])
+        ->where('type', 'reservations|orders|guests|menu|backup')->name('admin.export');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
     Route::patch('/reservations/{reservation}/status', [AdminController::class, 'updateStatus'])
@@ -41,3 +44,4 @@ Route::prefix('admin')->middleware('saklshi.admin')->group(function () {
 if (app()->environment('testing')) {
     Route::get('/__ci/admin-dashboard', [AdminController::class, 'index']);
 }
+

@@ -26,7 +26,7 @@ class AdminController extends Controller
             'scope' => ['nullable', Rule::in(['all', 'day'])],
         ]);
         $status = (string) $request->query('status', '');
-        $allDates = $request->query('scope') === 'all';
+        $allDates = $request->query('scope') !== 'day' && ! $request->filled('date');
         $mapStart = (int) $request->query('start', min(1320, max(720, (int) floor((now('Asia/Tbilisi')->hour * 60 + now('Asia/Tbilisi')->minute) / 30) * 30)));
         $freeSeats = 0;
         $freeTables = 0;
@@ -54,7 +54,7 @@ class AdminController extends Controller
                     ->when($date !== '', fn ($q) => $q->whereDate('visit_date', $date))
                     ->when($date === '' && ! $allDates, fn ($q) => $q->whereDate('visit_date', $today))
                     ->when($status !== '', fn ($q) => $q->where('status', $status))
-                    ->orderBy('visit_date')
+                    ->orderByDesc('created_at')->orderByDesc('id')
                     ->when($query !== '', function ($q) use ($query) {
                         $q->where(function ($inner) use ($query) {
                             $inner->where('first_name', 'like', "%{$query}%")
@@ -64,35 +64,22 @@ class AdminController extends Controller
                         });
                     })
                     ->orderBy('start_minute')
-                    ->limit(500)
-                    ->get();
+                    ->paginate(50)->withPath(route('admin.dashboard'))->withQueryString();
 
-                $guestRows = Reservation::query()
-                    ->orderByDesc('created_at')
-                    ->limit(1000)
-                    ->get();
-
-                $guests = $guestRows
-                    ->groupBy('phone')
-                    ->map(function ($rows) {
-                        $latest = $rows->first();
-
-                        return (object) [
-                            'first_name' => $latest->first_name,
-                            'last_name' => $latest->last_name,
-                            'phone' => $latest->phone,
-                            'birth_day' => $latest->birth_day,
-                            'birth_month' => $latest->birth_month,
-                            'birth_year' => $latest->birth_year ?? null,
-                            'marketing_consent' => $latest->marketing_consent,
-                            'last_visit' => $latest->visit_date,
-                            'visits' => $rows->whereIn('status', ['arrived', 'completed'])->count(),
-                        ];
-                    })
-                    ->values();
+                $latestGuestIds = Reservation::query()->selectRaw('MAX(id)')->groupBy('phone');
+                $guestRows = Reservation::query()->whereIn('id', $latestGuestIds)->orderByDesc('id')->get();
+                $visitCounts = Reservation::query()->whereIn('status', ['arrived', 'completed'])
+                    ->selectRaw('phone, COUNT(*) as total')->groupBy('phone')->pluck('total', 'phone');
+                $guests = $guestRows->map(fn ($latest) => (object) [
+                    'first_name' => $latest->first_name, 'last_name' => $latest->last_name,
+                    'phone' => $latest->phone, 'birth_day' => $latest->birth_day,
+                    'birth_month' => $latest->birth_month, 'birth_year' => $latest->birth_year,
+                    'marketing_consent' => $latest->marketing_consent, 'last_visit' => $latest->visit_date,
+                    'visits' => (int) ($visitCounts[$latest->phone] ?? 0),
+                ]);
 
                 $tables = DiningTable::query()->orderBy('id')->get();
-                $menu = MenuItem::query()->orderBy('category')->orderBy('sort_order')->orderBy('name')->get();
+                $menu = $request->attributes->get('live') ? collect() : MenuItem::query()->orderBy('category')->orderBy('sort_order')->orderBy('name')->get();
 
                 $todayReservations = Reservation::query()
                     ->with('items')
@@ -220,6 +207,14 @@ class AdminController extends Controller
             'databaseReady' => $databaseReady,
             'databaseError' => $databaseError,
         ]);
+    }
+
+    public function live(Request $request): \Illuminate\Http\Response
+    {
+        $request->attributes->set('live', true);
+        $view = $this->index($request);
+        if (! $view->getData()['databaseReady']) abort(503, 'Database unavailable');
+        return response($view->render())->header('Cache-Control', 'no-store, private');
     }
 
     public function updateStatus(Request $request, Reservation $reservation): RedirectResponse

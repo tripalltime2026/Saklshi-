@@ -84,6 +84,7 @@
 
             <form method="POST" action="{{ route('reservation.store') }}" id="booking-form" class="booking-form">
                 @csrf
+                <input type="hidden" name="menu_quantity" value="{{ array_sum($oldItems) }}" data-menu-expected>
 
                 <div class="booking-grid">
                     <div class="date-column">
@@ -282,7 +283,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/reservation.js') }}?v=20260909-booking" defer></script>
+<script src="{{ asset('js/reservation.js') }}?v=20260909-preorder" defer></script>
 <script src="{{ asset('js/menu-browser.js') }}" defer></script>
 @endpush
 
