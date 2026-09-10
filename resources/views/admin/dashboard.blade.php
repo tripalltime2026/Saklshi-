@@ -52,7 +52,7 @@
         <header class="admin-topbar">
             <div>
                 <h1>კეთილი დღე!</h1>
-                <p>დღეს გაქვთ <strong>{{ $todayCount }}</strong> აქტიური რეზერვაცია.</p>
+                <p data-live-part="headline">დღეს გაქვთ <strong>{{ $todayCount }}</strong> აქტიური რეზერვაცია.</p>
             </div>
             <div class="admin-top-actions">
                 <span class="live-status" role="status" data-live-status>ავტომატური განახლება · 2 წამი</span>

@@ -33,7 +33,7 @@ try {
   assert.match(confirmation,/ღორის მწვადი × 1/);
   assert.match(confirmation,/31\.80/);
   // Admin must get the booking without reload or applying the unfinished search.
-  await admin.locator('[data-live-part="booking-rows"]').getByText('CI Guest Preorder Test',{exact:true}).waitFor({timeout:15000});
+  await admin.locator('[data-live-part="booking-rows"] .guest-name-cell strong').filter({hasText:'CI Guest Preorder Test'}).waitFor({timeout:15000});
   assert.equal(await admin.locator('.top-search input').inputValue(),'unsent search text');
   const row = admin.locator('[data-live-part="booking-rows"] tr').filter({hasText:'CI Guest Preorder Test'});
   await row.locator('[data-order-detail] summary').click();

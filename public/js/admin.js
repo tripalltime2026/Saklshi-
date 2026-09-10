@@ -51,7 +51,7 @@
             // Only replace data regions. Search fields and editing forms remain untouched.
             const dialogOpen = document.querySelector('.row-detail-card:not([hidden])');
             const openOrders = new Set([...document.querySelectorAll('[data-order-detail][open]')].map(el => el.dataset.orderDetail));
-            const regions = ['kpis', 'capacity', 'floor', 'insights', 'guests', 'guest-count'];
+            const regions = ['headline', 'kpis', 'capacity', 'floor', 'insights', 'guests', 'guest-count'];
             if (!dialogOpen && !document.activeElement?.closest('.row-actions')) regions.push('booking-rows', 'booking-pages');
             const scrollBox = document.querySelector('.reservations-table-wrap');
             const scrollTop = scrollBox?.scrollTop || 0;
