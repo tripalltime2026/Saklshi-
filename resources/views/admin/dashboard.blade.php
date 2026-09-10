@@ -23,8 +23,12 @@
     $startDow = (int) $monthStart->isoWeekday();
 @endphp
 
+@push('head')
+<link rel="stylesheet" href="{{ asset('css/admin-operations.css') }}">
+@endpush
+
 @section('content')
-<div class="admin-app">
+<div class="admin-app" data-live-url="{{ route('admin.live') }}">
     <aside class="admin-sidebar">
         <a class="admin-logo admin-logo-image" href="{{ route('admin.dashboard') }}">
             <img src="{{ asset('images/batumis-sakhlshi-logo.png') }}" alt="ბათუმის სახლში">
@@ -48,10 +52,11 @@
         <header class="admin-topbar">
             <div>
                 <h1>კეთილი დღე!</h1>
-                <p>დღეს გაქვთ <strong>{{ $todayCount }}</strong> აქტიური რეზერვაცია.</p>
+                <p data-live-part="headline">დღეს გაქვთ <strong>{{ $todayCount }}</strong> აქტიური რეზერვაცია.</p>
             </div>
             <div class="admin-top-actions">
-                <span class="live-status" role="status" data-live-status>ავტომატური განახლება · 5 წამი</span>
+                <span class="live-status" role="status" data-live-status>ავტომატური განახლება · 2 წამი</span>
+                <button type="button" class="management-primary" data-refresh-now>განახლება</button>
                 <form class="top-search" method="GET" action="{{ route('admin.dashboard') }}">
                     <span>⌕</span>
                     <input name="q" value="{{ $query }}" placeholder="სტუმრის ძიება (სახელი, ტელეფონი...)">
@@ -81,7 +86,18 @@
             </div>
         @endif
 
-        <section class="kpi-row">
+        <details class="admin-exports">
+            <summary>მონაცემების ჩამოტვირთვა</summary>
+            <p>ჯავშნებისა და შეკვეთების CSV ითვალისწინებს არჩეულ ფილტრებს. სრული ასლი მოიცავს ყველა თარიღს.</p>
+            <div>
+                <a href="{{ route('admin.export', ['type' => 'reservations'] + request()->only(['q','date','status','scope'])) }}">ჯავშნები · CSV</a>
+                <a href="{{ route('admin.export', ['type' => 'orders'] + request()->only(['q','date','status','scope'])) }}">შეკვეთილი კერძები · CSV</a>
+                <a href="{{ route('admin.export', ['type' => 'guests']) }}">სტუმრების ბაზა · CSV</a>
+                <a href="{{ route('admin.export', ['type' => 'menu']) }}">მენიუს კატალოგი · CSV</a>
+                <a href="{{ route('admin.export', ['type' => 'backup']) }}">სრული მონაცემები · JSON</a>
+            </div>
+        </details>
+        <section class="kpi-row" data-live-part="kpis">
             <article class="kpi-card">
                 <span class="kpi-icon">▣</span>
                 <div><small>დღის რეზერვაციები</small><strong>{{ $todayCount }}</strong><p>აქტიური ჯავშნები</p></div>
@@ -111,14 +127,14 @@
                 </select></label>
                 <button type="submit">ჩვენება</button>
             </form>
-            <strong data-free-capacity>{{ $freeTables }} თავისუფალი მაგიდა · {{ $freeSeats }} ადგილი</strong>
+            <strong data-free-capacity data-live-part="capacity">{{ $freeTables }} თავისუფალი მაგიდა · {{ $freeSeats }} ადგილი</strong>
             <span>არჩეული დროიდან 2 საათით</span>
         </section>
         <section class="admin-panel" data-admin-panel="bookings">
             <div class="dashboard-grid">
                 <section class="reservations-module">
                     <div class="module-tabs">
-                        <a class="{{ ! $allDates && $mapDate === $today ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">დღეს</a>
+                        <a class="{{ ! $allDates && $mapDate === $today ? 'active' : '' }}" href="{{ route('admin.dashboard', ['scope' => 'day']) }}">დღეს</a>
                         <a href="{{ route('admin.dashboard', ['date' => now('Asia/Tbilisi')->addDay()->toDateString()]) }}">ხვალ</a>
                         <a class="{{ $allDates ? 'active' : '' }}" href="{{ route('admin.dashboard', ['scope' => 'all']) }}">ყველა</a>
                     </div>
@@ -147,11 +163,11 @@
                                     <th>მაგიდა</th>
                                     <th>მიზეზი</th>
                                     <th>სტატუსი</th>
-                                    <th>წყარო</th>
+                                    <th>შეკვეთილი მენიუ</th>
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody data-live-part="booking-rows">
                                 @forelse ($reservations as $reservation)
                                     @php
                                         $time = sprintf(
@@ -161,7 +177,7 @@
                                         );
                                     @endphp
                                     <tr>
-                                        <td><strong>{{ $time }}</strong><small>{{ $reservation->visit_date->format('d.m') }}</small></td>
+                                        <td><strong>{{ $reservation->visit_date->format('d.m.Y') }}</strong><small>{{ $time }}–{{ sprintf('%02d:%02d', intdiv($reservation->end_minute, 60), $reservation->end_minute % 60) }}</small><small>{{ $reservation->reference }}</small></td>
                                         <td>
                                             <div class="guest-name-cell">
                                                 <span class="country-dot">{{ mb_substr($reservation->first_name, 0, 1) }}</span>
@@ -172,7 +188,18 @@
                                         <td><span class="table-pill">{{ $reservation->table?->name ?? '—' }}</span></td>
                                         <td>{{ $occasionNames[$reservation->occasion] ?? '—' }}</td>
                                         <td><span class="status-pill {{ $reservation->status }}">{{ $statusNames[$reservation->status] ?? $reservation->status }}</span></td>
-                                        <td>{{ $reservation->source ?? 'Website' }}</td>
+                                        <td class="booking-menu-cell">
+                                            @if($reservation->items->isNotEmpty())
+                                                <details data-order-detail="{{ $reservation->id }}">
+                                                    <summary>{{ $reservation->items->sum('quantity') }} ერთეული · {{ number_format($reservation->items->sum(fn ($line) => $line->quantity * $line->unit_price) / 100, 2) }} ₾</summary>
+                                                    @foreach($reservation->items as $line)
+                                                        <p><strong>{{ $line->name }}</strong><br>{{ $line->quantity }} × {{ number_format($line->unit_price / 100, 2) }} ₾ = {{ number_format($line->quantity * $line->unit_price / 100, 2) }} ₾</p>
+                                                    @endforeach
+                                                </details>
+                                            @else
+                                                <span>მენიუ არ შეუკვეთავს</span>
+                                            @endif
+                                        </td>
                                         <td class="row-actions">
                                             @if ($reservation->status === 'confirmed')
                                                 <form method="POST" action="{{ route('admin.reservations.status', $reservation) }}">
@@ -190,6 +217,12 @@
                                             <button type="button" class="more-btn" title="დეტალები" data-row-detail>•••</button>
                                             <div class="row-detail-card" role="dialog" aria-label="ჯავშნის დეტალები" hidden><button type="button" data-close-detail aria-label="დახურვა">×</button>
                                                 <strong>{{ $reservation->reference }}</strong>
+                                                <h3>{{ $reservation->first_name }} {{ $reservation->last_name }}</h3>
+                                                <p>{{ $reservation->phone }}</p>
+                                                <p>{{ $reservation->visit_date->format('d.m.Y') }} · {{ $time }}–{{ sprintf('%02d:%02d', intdiv($reservation->end_minute, 60), $reservation->end_minute % 60) }}</p>
+                                                <p>{{ $reservation->guests }} სტუმარი · {{ $reservation->table?->name ?? '—' }}</p>
+                                                <p>{{ $statusNames[$reservation->status] ?? $reservation->status }} · {{ $occasionNames[$reservation->occasion] ?? '—' }}</p>
+                                                <p>შექმნილია: {{ $reservation->created_at->timezone('Asia/Tbilisi')->format('d.m.Y H:i:s') }} · {{ $reservation->source ?? 'Website' }}</p>
                                                 <p>დაბადება: {{ $reservation->birth_day }}/{{ $reservation->birth_month }}{{ $reservation->birth_year ? '/'.$reservation->birth_year : '' }}</p>
                                                 @if($reservation->items->isNotEmpty())
                                                     <div class="admin-preorder-detail">
@@ -225,10 +258,17 @@
                             </tbody>
                         </table>
                     </div>
+                    <div data-live-part="booking-pages" class="booking-pages">
+                        @if($reservations instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
+                            <span>სულ {{ $reservations->total() }} ჯავშანი · გვერდი {{ $reservations->currentPage() }} / {{ $reservations->lastPage() }}</span>
+                            @if($reservations->previousPageUrl())<a href="{{ $reservations->previousPageUrl() }}">← წინა</a>@endif
+                            @if($reservations->nextPageUrl())<a href="{{ $reservations->nextPageUrl() }}">შემდეგი →</a>@endif
+                        @endif
+                    </div>
                 </section>
 
                 <aside class="operations-column">
-                    <section class="floor-card">
+                    <section class="floor-card" data-live-part="floor">
                         <div class="card-toggle"><button type="button" class="active" data-floor-mode="map">სართულის გეგმა</button><button type="button" data-floor-mode="list">სია</button></div>
                         <div class="mini-floor">
                             <div class="floor-window-line"></div>
@@ -253,7 +293,7 @@
                     </section>
                 </aside>
 
-                <aside class="insights-column">
+                <aside class="insights-column" data-live-part="insights">
                     <section class="calendar-mini-card">
                         <div class="insight-head"><strong>{{ $todayCarbon->translatedFormat('F Y') }}</strong></div>
                         <div class="mini-weekdays"><span>ორშ</span><span>სამ</span><span>ოთხ</span><span>ხუთ</span><span>პარ</span><span>შაბ</span><span>კვი</span></div>
@@ -297,8 +337,8 @@
         </section>
 
         <section class="admin-panel" data-admin-panel="guests" hidden>
-            <div class="secondary-panel-head"><div><h2>სტუმრების ბაზა</h2><p>CRM მონაცემები და განმეორებითი ვიზიტები</p></div><span>{{ $guests->count() }} სტუმარი</span></div>
-            <div class="cards-grid">
+            <div class="secondary-panel-head"><div><h2>სტუმრების ბაზა</h2><p>CRM მონაცემები და განმეორებითი ვიზიტები</p></div><span data-live-part="guest-count">{{ $guests->count() }} სტუმარი</span></div>
+            <div class="cards-grid" data-live-part="guests">
                 @forelse($guests as $guest)
                     <article class="management-card">
                         <h3>{{ $guest->first_name }} {{ $guest->last_name }}</h3>
@@ -436,7 +476,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/admin.js') }}" defer></script>
+<script src="{{ asset('js/admin.js') }}?v=20260909-operations" defer></script>
 <script src="{{ asset('js/menu-browser.js') }}" defer></script>
 @endpush
 

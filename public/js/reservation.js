@@ -160,6 +160,8 @@
         });
 
         document.dispatchEvent(new Event('menu:changed'));
+        const expected = form.querySelector('[data-menu-expected]');
+        if (expected) expected.value = String(totalQty);
         if (menuCount) menuCount.textContent = String(totalQty);
         if (menuTotal) menuTotal.textContent = (totalCents / 100).toFixed(2) + ' ₾';
 
@@ -209,6 +211,7 @@
     }
 
     form.addEventListener('submit', (event) => {
+        recalcMenu();
         if (page.dataset.databaseReady !== '1' || availableCount === null || availableCount < 1 || submit.disabled) {
             event.preventDefault();
             return;

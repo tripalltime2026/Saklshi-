@@ -1,0 +1,17 @@
+.admin-exports { background:#fff; border:1px solid #e1e5de; border-radius:12px; padding:14px 18px; margin:0 0 18px; }
+.admin-exports summary { cursor:pointer; font-weight:700; }
+.admin-exports p { font-size:12px; color:#687569; }
+.admin-exports>div { display:flex; flex-wrap:wrap; gap:10px; }
+.admin-exports a,.booking-pages a { display:inline-block; background:#edf3ed; color:#243b32; border-radius:8px; padding:10px 12px; text-decoration:none; font-size:12px; }
+.admin-shell .reservations-table { min-width:950px; }
+.admin-shell .reservations-table th,.admin-shell .reservations-table td { font-size:12px; vertical-align:top; padding:12px; }
+.admin-shell .reservations-table td>strong { font-size:13px; }
+.admin-shell .reservations-table td small { display:block; margin-top:5px; font-size:11px; }
+.booking-menu-cell { min-width:220px; max-width:320px; white-space:normal !important; }
+.booking-menu-cell summary { cursor:pointer; color:#243b32; font-weight:700; padding:4px 0; }
+.booking-menu-cell p { white-space:normal; line-height:1.6; padding-bottom:8px; border-bottom:1px solid #eee; }
+.booking-pages { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:16px 0; font-size:12px; }
+.admin-shell .row-detail-card { width:min(560px,92vw); text-align:left; white-space:normal; }
+.admin-shell .row-detail-card h3 { font-size:17px; }
+.admin-shell [data-refresh-now] { min-height:40px; padding:8px 12px; cursor:pointer; }
+.admin-shell .live-status[data-state="error"] { color:#a12920; }

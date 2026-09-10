@@ -132,3 +132,34 @@ foreach (['2026-09-09 08:10:00' => ['2026-09-09', '12:00'], '2026-09-09 19:15:00
     check($defaults['defaultVisitDate'] === $expectedDate && $defaults['defaultVisitTime'] === $expectedTime, 'Booking opens on a future slot at '.$clock);
 }
 Illuminate\Support\Carbon::setTestNow();
+
+// Operational dashboard and complete exports use the same committed reservation/order data.
+$ops = new App\Http\Controllers\AdminController;
+$opsData = $ops->index(req('/admin'))->getData();
+check($opsData['allDates'] && $opsData['reservations']->contains('id', $menuReservation->id), 'Default dashboard includes future bookings');
+$opsHtml = $ops->index(req('/admin'))->render();
+check(str_contains($opsHtml, 'data-order-detail="'.$menuReservation->id.'"'), 'Ordered dishes are visible in the booking list');
+check(str_contains($opsHtml, $menuReservation->table->name), 'Assigned table appears with the reservation');
+$live = $ops->live(req('/admin/live'));
+check($live->getStatusCode() === 200 && str_contains($live->getContent(), $menuReservation->reference), 'Live refresh includes newly committed booking');
+$exports = new App\Http\Controllers\AdminExportController;
+function exportText($response): string { ob_start(); $response->sendContent(); return ob_get_clean(); }
+$csv = exportText($exports->download(req('/admin/export/reservations', 'GET', ['q' => $menuReservation->reference]), 'reservations'));
+check(str_contains($csv, $menuReservation->reference) && str_contains($csv, $historical->name), 'Booking CSV includes menu and reference');
+$csv = exportText($exports->download(req('/admin/export/orders', 'GET', ['q' => $menuReservation->reference]), 'orders'));
+check(substr_count($csv, $menuReservation->reference) === 31, 'Order CSV exports every ordered position');
+$json = json_decode(exportText($exports->download(req('/admin/export/backup'), 'backup')), true, 512, JSON_THROW_ON_ERROR);
+check(count($json['tables']['reservations']) === App\Models\Reservation::count(), 'Full JSON includes all reservations');
+check(count($json['tables']['reservation_items']) === App\Models\ReservationItem::count(), 'Full JSON includes complete order snapshots');
+check(! isset($json['tables']['sessions']), 'Operational export excludes authentication data');
+$csv = exportText($exports->download(req('/admin/export/menu'), 'menu'));
+check(str_starts_with($csv, "\xEF\xBB\xBF") && str_contains($csv, 'ქალაქური'), 'CSV has Georgian Excel-compatible encoding');
+$beforeMismatch = App\Models\Reservation::count();
+try {
+    $controller->store(req('/reservations', 'POST', $data + ['menu_quantity' => 2]));
+    throw new RuntimeException('Incomplete preorder accepted');
+} catch (Illuminate\Validation\ValidationException $e) {}
+check(App\Models\Reservation::count() === $beforeMismatch, 'Missing preorder payload cannot silently create an empty order');
+foreach (['reservations', 'orders', 'guests', 'menu', 'backup'] as $type) {
+    check($guard->handle(req('/admin/export/'.$type), fn () => response('private'))->getStatusCode() === 302, 'Unauthenticated '.$type.' export blocked');
+}

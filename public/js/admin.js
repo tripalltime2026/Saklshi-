@@ -1,6 +1,5 @@
 (() => {
     let active = ['bookings', 'tables', 'guests', 'menu'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'bookings';
-    let dirty = false;
     let refreshing = false;
     let floorMode = 'map';
     const activate = (name) => {
@@ -32,9 +31,6 @@
         if (event.target.closest('[data-close-detail]') || !event.target.closest('.row-detail-card')) closeDetails();
     });
     document.addEventListener('keydown', event => { if (event.key === 'Escape') closeDetails(); });
-    document.addEventListener('input', event => {
-        if (event.target.closest('.reservation-filters, .slot-summary form, .top-search')) dirty = true;
-    });
     activate(active);
     const refresh = async () => {
         if (document.hidden || refreshing) return;
@@ -43,7 +39,7 @@
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 10000);
         try {
-            const response = await fetch(location.pathname + location.search, {
+            const response = await fetch(document.querySelector('.admin-app').dataset.liveUrl + location.search, {
                 cache: 'no-store', headers: {'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json'}, signal: controller.signal
             });
             if (response.status === 401 || (response.redirected && new URL(response.url).pathname.endsWith('/admin/login'))) {
@@ -52,22 +48,34 @@
             if (!response.ok) throw new Error('refresh');
             const incoming = new DOMParser().parseFromString(await response.text(), 'text/html');
             if (!incoming.querySelector('.admin-app')) throw new Error('invalid page');
-            // Never replace a form that is being edited or an open reservation.
-            const busy = dirty || document.activeElement?.matches('input, select, textarea') || document.querySelector('.row-detail-card:not([hidden])');
-            const selectors = ['.kpi-row', '[data-free-capacity]'];
-            if (!busy) selectors.push('[data-admin-panel="bookings"]', '[data-admin-panel="guests"]');
-            selectors.forEach(selector => {
+            // Only replace data regions. Search fields and editing forms remain untouched.
+            const dialogOpen = document.querySelector('.row-detail-card:not([hidden])');
+            const openOrders = new Set([...document.querySelectorAll('[data-order-detail][open]')].map(el => el.dataset.orderDetail));
+            const regions = ['headline', 'kpis', 'capacity', 'floor', 'insights', 'guests', 'guest-count'];
+            if (!dialogOpen && !document.activeElement?.closest('.row-actions')) regions.push('booking-rows', 'booking-pages');
+            const scrollBox = document.querySelector('.reservations-table-wrap');
+            const scrollTop = scrollBox?.scrollTop || 0;
+            regions.forEach(name => {
+                const selector = '[data-live-part="' + name + '"]';
                 const old = document.querySelector(selector), next = incoming.querySelector(selector);
-                if (old && next) old.replaceWith(next);
+                if (old && next && old.innerHTML !== next.innerHTML) old.replaceWith(next);
             });
+            document.querySelectorAll('[data-order-detail]').forEach(el => { el.open = openOrders.has(el.dataset.orderDetail); });
+            if (scrollBox) scrollBox.scrollTop = scrollTop;
+            indicator.dataset.state = 'ok';
             activate(active);
             setFloor();
-            indicator.textContent = 'განახლდა ' + new Date().toLocaleTimeString('ka-GE');
+            indicator.textContent = (dialogOpen ? 'დეტალების დახურვისას განახლდება · ' : 'განახლდა ')  + new Date().toLocaleTimeString('ka-GE');
         } catch {
+            indicator.dataset.state = 'error';
             indicator.textContent = 'კავშირი შეწყდა · ვცდილობთ ხელახლა';
         } finally { clearTimeout(timeout); refreshing = false; }
     };
-    setInterval(refresh, 5000);
+    setInterval(refresh, 2000);
+    document.querySelector('[data-refresh-now]')?.addEventListener('click', () => { closeDetails(); refresh(); });
+    window.addEventListener('focus', refresh);
+    refresh();
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     window.addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
 })();
+

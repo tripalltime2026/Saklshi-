@@ -113,6 +113,7 @@ class ReservationController extends Controller
             'birth_date' => ['required', 'date_format:Y-m-d'],
             'marketing_consent' => ['nullable', 'boolean'],
             'notes' => ['nullable', 'string', 'max:500'],
+            'menu_quantity' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'items' => ['nullable', 'array', 'max:300'],
             'items.*' => ['nullable', 'integer', 'min:0', 'max:20'],
         ]);
@@ -157,6 +158,10 @@ class ReservationController extends Controller
         $selectedItems = collect($validated['items'] ?? [])
             ->map(fn ($qty) => (int) $qty)
             ->filter(fn ($qty) => $qty > 0);
+
+        if (isset($validated['menu_quantity']) && (int) $validated['menu_quantity'] !== (int) $selectedItems->sum()) {
+            throw ValidationException::withMessages(['items' => 'არჩეული მენიუ სრულად ვერ გაიგზავნა. გთხოვთ გადაამოწმოთ შეკვეთა და სცადოთ ხელახლა.']);
+        }
 
         if ($selectedItems->count() > 100) {
             throw ValidationException::withMessages(['items' => 'ერთ ჯავშანში აირჩიეთ მაქსიმუმ 100 განსხვავებული პოზიცია.']);
