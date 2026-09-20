@@ -51,8 +51,9 @@ jobs:
           php artisan migrate --force
           php artisan db:seed --force
 
-      - name: Verify authentication and booking capacity
+      - name: Verify authentication, branch foundation and booking capacity
         run: |
+          php tests/platform-foundation.php
           php tests/operations.php
           php tests/capacity-migration.php
 
@@ -74,7 +75,6 @@ jobs:
           fi
           kill $SERVER_PID
           test -s /tmp/admin.html
-
 
       - name: Setup Node for browser regression
         uses: actions/setup-node@v4
