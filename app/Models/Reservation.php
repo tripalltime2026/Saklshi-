@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Reservation extends Model
 {
     protected $fillable = [
+        'branch_id',
+        'user_id',
         'reference',
         'visit_date',
         'start_minute',
@@ -33,6 +35,8 @@ class Reservation extends Model
     protected function casts(): array
     {
         return [
+            'branch_id' => 'integer',
+            'user_id' => 'integer',
             'visit_date' => 'date:Y-m-d',
             'start_minute' => 'integer',
             'end_minute' => 'integer',
@@ -44,6 +48,16 @@ class Reservation extends Model
             'marketing_consent' => 'boolean',
             'consent_at' => 'datetime',
         ];
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function table(): BelongsTo

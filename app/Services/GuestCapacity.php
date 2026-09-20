@@ -10,19 +10,27 @@ class GuestCapacity
 {
     public const ACTIVE_STATUSES = ['confirmed', 'arrived'];
 
-    // Every capacity-changing write locks this same row before reading reservations.
-    public function settings(bool $lock = false): BookingSettings
+    // Every capacity-changing write locks the same branch settings row before reading reservations.
+    public function settings(bool $lock = false, ?int $branchId = null): BookingSettings
     {
-        return BookingSettings::query()->when($lock, fn ($query) => $query->lockForUpdate())->findOrFail(1);
+        $branchId ??= app(BranchContext::class)->id();
+
+        return BookingSettings::query()
+            ->where('branch_id', $branchId)
+            ->when($lock, fn ($query) => $query->lockForUpdate())
+            ->firstOrFail();
     }
 
     public function remaining(string $date, int $start, int $end, BookingSettings $settings, bool $lock = false): int
     {
-        $reservations = Reservation::query()->whereDate('visit_date', $date)
+        $reservations = Reservation::query()
+            ->where('branch_id', $settings->branch_id)
+            ->whereDate('visit_date', $date)
             ->whereIn('status', self::ACTIVE_STATUSES)
             ->where('start_minute', '<', $end)
             ->where('capacity_end_minute', '>', $start)
-            ->when($lock, fn ($query) => $query->lockForUpdate())->get();
+            ->when($lock, fn ($query) => $query->lockForUpdate())
+            ->get();
 
         return max(0, $settings->capacity - $this->peak($reservations, $start, $end));
     }
