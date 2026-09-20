@@ -54,6 +54,7 @@ jobs:
       - name: Verify authentication, branch foundation and booking capacity
         run: |
           php tests/platform-foundation.php
+          php tests/customer-auth.php
           php tests/operations.php
           php tests/capacity-migration.php
 
