@@ -6,6 +6,7 @@ use App\Services\GuestCapacity;
 use App\Models\BookingSettings;
 use App\Models\MenuItem;
 use App\Models\Reservation;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -20,13 +21,21 @@ use Throwable;
 
 class ReservationController extends Controller
 {
-    public function index(): View
+    public function index(?Request $request = null): View
     {
         $databaseReady = true;
+        $customer = null;
+        $customerId = $request && $request->hasSession()
+            ? (int) $request->session()->get('saklshi_customer_id', 0)
+            : 0;
+        if ($customerId > 0) {
+            $customer = User::query()->with('profile')->whereKey($customerId)->where('active', true)->first();
+        }
 
         try {
             $settings = app(GuestCapacity::class)->settings();
             $menu = MenuItem::query()
+                ->where('branch_id', $settings->branch_id)
                 ->where('active', true)
                 ->orderBy('category')
                 ->orderBy('sort_order')->orderBy('name')
@@ -46,6 +55,7 @@ class ReservationController extends Controller
 
         return view('reservation', [
             'databaseReady' => $databaseReady,
+            'customer' => $customer,
             'maxPartySize' => $settings->max_party_size,
             'menu' => $menu,
             'today' => $current->toDateString(),
@@ -146,7 +156,12 @@ class ReservationController extends Controller
             ]);
         }
 
-        $phone = preg_replace('/[^0-9+]/', '', $validated['phone']);
+        $customerId = (int) $request->session()->get('saklshi_customer_id', 0);
+        $customer = $customerId > 0
+            ? User::query()->whereKey($customerId)->where('active', true)->first()
+            : null;
+
+        $phone = $customer?->phone ?: preg_replace('/[^0-9+]/', '', $validated['phone']);
 
         if (! preg_match('/^\+?[0-9]{9,15}$/', (string) $phone)) {
             throw ValidationException::withMessages([
@@ -167,12 +182,13 @@ class ReservationController extends Controller
         }
 
         try {
-            $reservation = DB::transaction(function () use ($validated, $phone, $start, $birthDate, $selectedItems) {
+            $reservation = DB::transaction(function () use ($validated, $phone, $start, $birthDate, $selectedItems, $customer) {
                 $capacity = app(GuestCapacity::class);
                 $settings = $capacity->settings(true);
                 $capacity->assertAvailable($validated['visit_date'], $start, (int) $validated['guests'], $settings);
 
                 $menuItems = MenuItem::query()
+                    ->where('branch_id', $settings->branch_id)
                     ->whereIn('id', $selectedItems->keys())
                     ->where('active', true)
                     ->get()
@@ -189,6 +205,8 @@ class ReservationController extends Controller
                 } while (Reservation::query()->where('reference', $reference)->exists());
 
                 $reservation = Reservation::create([
+                    'branch_id' => $settings->branch_id,
+                    'user_id' => $customer?->id,
                     'reference' => $reference,
                     'visit_date' => $validated['visit_date'],
                     'start_minute' => $start,

@@ -625,3 +625,33 @@ a{text-decoration:none;color:inherit}
 
 .guest-counter input[type="number"] { width: 76px; min-width: 0; border: 0; text-align: center; font-size: 24px; font-weight: 700; background: transparent; color: inherit; }
 .guest-capacity-note { font-size: 12px; line-height: 1.6; margin-top: 12px; }
+
+
+/* CUSTOMER ACCOUNT */
+.account-chip{display:inline-flex;align-items:center;justify-content:center;border:1px solid #ded7cc;border-radius:10px;padding:11px 14px;background:#fff;color:#2c342f;font-size:10px;font-weight:700}
+.account-shell{min-height:100vh;padding:54px 18px;background:#f6f3ed;display:flex;align-items:flex-start;justify-content:center}
+.account-shell.account-wide{padding-top:34px}
+.account-card{width:min(560px,100%);background:#fff;border:1px solid #e5dfd6;border-radius:16px;padding:28px;box-shadow:0 12px 36px rgba(30,26,20,.06)}
+.account-wide .account-card{width:min(980px,100%)}
+.account-card h1{margin:4px 0 8px;font-size:28px}
+.account-card>p{color:#777168;line-height:1.6}
+.account-eyebrow{margin:0!important;color:#a57c49!important;font-size:10px!important;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.account-back{display:inline-block;margin-bottom:18px;color:#70695f;font-size:10px}
+.account-form{display:flex;flex-direction:column;gap:14px;margin-top:20px}
+.account-form label{display:flex;flex-direction:column;gap:6px;font-size:10px;font-weight:700}
+.account-form input,.account-form select{width:100%;border:1px solid #ddd6cc;border-radius:9px;padding:12px 13px;background:#fff;font-size:13px;outline:0}
+.account-form input:focus,.account-form select:focus{border-color:#b99663;box-shadow:0 0 0 3px rgba(185,150,99,.12)}
+.account-form .book-chip{border:0;cursor:pointer;margin-top:4px}
+.account-check{flex-direction:row!important;align-items:center;font-weight:500!important}
+.account-check input{width:auto}
+.account-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid #eee8df}
+.account-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.account-actions a,.account-actions button{border:1px solid #e1dbd1;background:#fff;border-radius:8px;padding:9px 11px;font-size:9px;cursor:pointer}
+.account-actions form{margin:0}
+.account-reservations{display:flex;flex-direction:column;gap:9px;margin-top:18px}
+.account-reservation{display:grid;grid-template-columns:minmax(180px,1fr) 150px auto;align-items:center;gap:15px;border:1px solid #ebe5dc;border-radius:11px;padding:14px}
+.account-reservation div{display:flex;flex-direction:column;gap:4px}
+.account-reservation span{font-size:9px;color:#817a71}.account-reservation strong,.account-reservation b{font-size:11px}
+.account-status{padding:6px 8px;border-radius:7px;background:#f2eee8;color:#5e5952!important;text-transform:capitalize}
+.booking-alert.success{background:#e7f6eb;color:#2e744a;padding:11px 14px;border-radius:9px}
+@media(max-width:680px){.account-chip{display:none}.account-shell{padding:20px 10px}.account-card{padding:20px 16px}.account-head{display:block}.account-actions{justify-content:flex-start;margin-top:14px}.account-reservation{grid-template-columns:1fr auto}.account-reservation>div:nth-child(2){display:none}}
