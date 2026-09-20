@@ -3,6 +3,8 @@
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\CustomerAccountController;
+use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\ReservationController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +18,18 @@ Route::post('/reservations', [ReservationController::class, 'store'])
 Route::get('/reservation/{reference}', [ReservationController::class, 'confirmation'])
     ->where('reference', '[A-Z0-9]{8,12}')
     ->name('reservation.confirmation');
+
+Route::get('/account/login', [CustomerAuthController::class, 'showPhone'])->name('account.login');
+Route::post('/account/code', [CustomerAuthController::class, 'requestCode'])->middleware('throttle:6,1')->name('account.code.request');
+Route::get('/account/verify', [CustomerAuthController::class, 'showVerify'])->name('account.verify');
+Route::post('/account/verify', [CustomerAuthController::class, 'verify'])->middleware('throttle:12,1')->name('account.code.verify');
+
+Route::prefix('account')->middleware('saklshi.customer')->group(function () {
+    Route::get('/', [CustomerAccountController::class, 'dashboard'])->name('account.dashboard');
+    Route::get('/profile', [CustomerAccountController::class, 'edit'])->name('account.profile.edit');
+    Route::put('/profile', [CustomerAccountController::class, 'update'])->name('account.profile.update');
+    Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('account.logout');
+});
 
 Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])
