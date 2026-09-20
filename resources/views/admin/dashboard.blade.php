@@ -36,7 +36,7 @@
 
         <nav class="side-nav">
             <button type="button" data-admin-tab="bookings"><span>▤</span> რეზერვაციები</button>
-            <button type="button" data-admin-tab="tables"><span>⌘</span> მაგიდების რუკა</button>
+            <button type="button" data-admin-tab="capacity"><span>⌘</span> ტევადობა და ჯავშანი</button>
             <button type="button" data-admin-tab="guests"><span>♟</span> სტუმრები</button>
             <button type="button" data-admin-tab="menu"><span>♨</span> მენიუ</button>
         </nav>
@@ -127,7 +127,7 @@
                 </select></label>
                 <button type="submit">ჩვენება</button>
             </form>
-            <strong data-free-capacity data-live-part="capacity">{{ $freeTables }} თავისუფალი მაგიდა · {{ $freeSeats }} ადგილი</strong>
+            <strong data-free-capacity data-live-part="capacity">{{ $freeSeats }} თავისუფალი ადგილი / {{ $restaurantCapacity }}</strong>
             <span>არჩეული დროიდან 2 საათით</span>
         </section>
         <section class="admin-panel" data-admin-panel="bookings">
@@ -160,7 +160,7 @@
                                     <th>დრო</th>
                                     <th>სტუმარი</th>
                                     <th>სტუმრები</th>
-                                    <th>მაგიდა</th>
+                                    <th>განთავსება</th>
                                     <th>მიზეზი</th>
                                     <th>სტატუსი</th>
                                     <th>შეკვეთილი მენიუ</th>
@@ -185,7 +185,7 @@
                                             </div>
                                         </td>
                                         <td>{{ $reservation->guests }}</td>
-                                        <td><span class="table-pill">{{ $reservation->table?->name ?? '—' }}</span></td>
+                                        <td><span class="table-pill">{{ $reservation->table?->name ?? 'სტუმრების რაოდენობით' }}</span></td>
                                         <td>{{ $occasionNames[$reservation->occasion] ?? '—' }}</td>
                                         <td><span class="status-pill {{ $reservation->status }}">{{ $statusNames[$reservation->status] ?? $reservation->status }}</span></td>
                                         <td class="booking-menu-cell">
@@ -219,8 +219,15 @@
                                                 <strong>{{ $reservation->reference }}</strong>
                                                 <h3>{{ $reservation->first_name }} {{ $reservation->last_name }}</h3>
                                                 <p>{{ $reservation->phone }}</p>
+                                                <details><summary>სტატუსის ისტორია</summary>
+                                                    @forelse($reservation->statusHistory as $change)
+                                                        <p>{{ $change->created_at->timezone('Asia/Tbilisi')->format('d.m.Y H:i') }} · {{ $statusNames[$change->to_status] ?? $change->to_status }} · {{ $change->actor }}</p>
+                                                    @empty
+                                                        <p>ძველი ჯავშნის ისტორია არ არის შენახული.</p>
+                                                    @endforelse
+                                                </details>
                                                 <p>{{ $reservation->visit_date->format('d.m.Y') }} · {{ $time }}–{{ sprintf('%02d:%02d', intdiv($reservation->end_minute, 60), $reservation->end_minute % 60) }}</p>
-                                                <p>{{ $reservation->guests }} სტუმარი · {{ $reservation->table?->name ?? '—' }}</p>
+                                                <p>{{ $reservation->guests }} სტუმარი · {{ $reservation->table?->name ?? 'სტუმრების რაოდენობით' }}</p>
                                                 <p>{{ $statusNames[$reservation->status] ?? $reservation->status }} · {{ $occasionNames[$reservation->occasion] ?? '—' }}</p>
                                                 <p>შექმნილია: {{ $reservation->created_at->timezone('Asia/Tbilisi')->format('d.m.Y H:i:s') }} · {{ $reservation->source ?? 'Website' }}</p>
                                                 <p>დაბადება: {{ $reservation->birth_day }}/{{ $reservation->birth_month }}{{ $reservation->birth_year ? '/'.$reservation->birth_year : '' }}</p>
@@ -269,27 +276,12 @@
 
                 <aside class="operations-column">
                     <section class="floor-card" data-live-part="floor">
-                        <div class="card-toggle"><button type="button" class="active" data-floor-mode="map">სართულის გეგმა</button><button type="button" data-floor-mode="list">სია</button></div>
-                        <div class="mini-floor">
-                            <div class="floor-window-line"></div>
-                            @foreach($tables->where('active', true) as $table)
-                                <div class="floor-table {{ in_array($table->id, $reservedTableIds, true) ? 'busy' : 'free' }}"
-                                     style="left:{{ $table->x }}%;top:{{ $table->y }}%;">
-                                    <span>{{ $table->name }}</span><small>{{ $table->capacity }}</small>
-                                </div>
-                            @endforeach
-
-                        </div>
-                        <div class="floor-list" hidden>
-                            @foreach($tables->where('active', true) as $table)
-                                <div><strong>{{ $table->name }} · {{ $table->capacity }} ადგილი</strong><span>{{ in_array($table->id, $reservedTableIds, true) ? 'დაკავებული' : 'თავისუფალი' }}</span></div>
-                            @endforeach
-                        </div>
-                        <div class="floor-legend">
-                            <span><i class="free-dot"></i>თავისუფალი</span>
-                            <span><i class="busy-dot"></i>დაკავებული</span>
-
-                        </div>
+                        <h3>სტუმრების ტევადობა</h3>
+                        <p>{{ $mapDate }} · {{ sprintf('%02d:%02d', intdiv($mapStart, 60), $mapStart % 60) }}</p>
+                        <p><strong>{{ $freeSeats }}</strong> თავისუფალი ადგილი</p>
+                        <p>საერთო ტევადობა: {{ $restaurantCapacity }}</p>
+                        <p>დაჯავშნა სტუმრების რაოდენობით ხდება. განთავსებას რესტორანი ადგილზე უზრუნველყოფს.</p>
+                        <a href="#capacity" data-admin-tab="capacity">ტევადობის მართვა →</a>
                     </section>
                 </aside>
 
@@ -434,49 +426,37 @@
             </div>
         </section>
 
-        <section class="admin-panel" data-admin-panel="tables" hidden>
-            <div class="secondary-panel-head"><div><h2>მაგიდების რუკა</h2><p>დარბაზის 2D მართვა და ტევადობა</p></div></div>
-            <div class="management-layout">
-                <form class="management-card management-form" method="POST" action="{{ route('admin.tables.store') }}">
-                    @csrf
-                    <h3>ახალი მაგიდა</h3>
-                    <label>სახელი<input required name="name" placeholder="მაგიდა 13"></label>
-                    <label>ადგილები<input required type="number" min="1" max="20" name="capacity" value="4"></label>
-                    <label>X (%)<input required type="number" min="8" max="92" name="x" value="50"></label>
-                    <label>Y (%)<input required type="number" min="12" max="88" name="y" value="50"></label>
-                    <input type="hidden" name="active" value="0">
-                    <label class="check-line"><input type="checkbox" name="active" value="1" checked> აქტიური</label>
-                    <button class="management-primary" type="submit">დამატება</button>
-                </form>
-                <div class="cards-grid">
-                    @foreach($tables as $table)
-                        <article class="management-card">
-                            <form method="POST" action="{{ route('admin.tables.update', $table) }}">
-                                @csrf @method('PUT')
-                                <label>სახელი<input required name="name" value="{{ $table->name }}"></label>
-                                <label>ადგილები<input required type="number" min="1" max="20" name="capacity" value="{{ $table->capacity }}"></label>
-                                <div class="two-fields">
-                                    <label>X<input required type="number" min="8" max="92" name="x" value="{{ $table->x }}"></label>
-                                    <label>Y<input required type="number" min="12" max="88" name="y" value="{{ $table->y }}"></label>
-                                </div>
-                                <input type="hidden" name="active" value="{{ $table->active ? 1 : 0 }}">
-                                <button type="submit">შენახვა</button>
-                            </form>
-                            <form method="POST" action="{{ route('admin.tables.toggle', $table) }}">
-                                @csrf @method('PATCH')
-                                <button class="muted-action" type="submit">{{ $table->active ? 'დამალვა' : 'გამოჩენა' }}</button>
-                            </form>
-                        </article>
-                    @endforeach
-                </div>
+        <section class="admin-panel" data-admin-panel="capacity" hidden>
+            <div class="secondary-panel-head"><div><h2>ტევადობა და ჯავშნის პარამეტრები</h2><p>ჯავშნები ითვლება სტუმრების რაოდენობით.</p></div></div>
+            @if($bookingSettings)
+            <form class="management-card management-form" method="POST" action="{{ route('admin.booking-settings.update') }}">
+                @csrf @method('PUT')
+                <label>ერთდროულად მისაღები სტუმრები<input required type="number" min="0" max="10000" name="capacity" value="{{ old('capacity', $bookingSettings->capacity) }}"></label>
+                <label>სტუმრების მაქსიმუმი ერთ ჯავშანში<input required type="number" min="1" max="255" name="max_party_size" value="{{ old('max_party_size', $bookingSettings->max_party_size) }}"></label>
+                <label>ვიზიტის ხანგრძლივობა (წუთი)<input required type="number" min="30" max="240" step="30" name="duration_minutes" value="{{ old('duration_minutes', $bookingSettings->duration_minutes) }}"></label>
+                <label>ვიზიტებს შორის შუალედი (წუთი)<input required type="number" min="0" max="120" step="30" name="buffer_minutes" value="{{ old('buffer_minutes', $bookingSettings->buffer_minutes) }}"></label>
+                <input type="hidden" name="active" value="0">
+                <label class="check-line"><input type="checkbox" name="active" value="1" @checked(old('active', $bookingSettings->active))> ონლაინ ჯავშნების მიღება</label>
+                <p>ახალი ხანგრძლივობა და შუალედი ვრცელდება მხოლოდ ახალ ჯავშნებზე. მიღების გამორთვა არსებულ ჯავშნებს არ აუქმებს. ტევადობა ვერ შემცირდება დადასტურებული ჯავშნების რაოდენობაზე ქვემოთ.</p>
+                <button class="management-primary" type="submit">შენახვა</button>
+            </form>
+            <div class="management-card">
+                <h3>პარამეტრების ცვლილებების ისტორია</h3>
+                @forelse($settingsHistory as $entry)
+                    @php($values = json_decode($entry->after, true))
+                    <p>{{ $entry->created_at }} · {{ $entry->actor }} · ტევადობა: {{ $values['capacity'] }} · ჯგუფი: {{ $values['max_party_size'] }} · ვიზიტი: {{ $values['duration_minutes'] }} წთ · შუალედი: {{ $values['buffer_minutes'] }} წთ · {{ $values['active'] ? 'მიღება ჩართულია' : 'მიღება შეჩერებულია' }}</p>
+                @empty
+                    <p>ცვლილებები ჯერ არ დაფიქსირებულა.</p>
+                @endforelse
             </div>
+            @endif
         </section>
     </main>
 </div>
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/admin.js') }}?v=20260909-operations" defer></script>
+<script src="{{ asset('js/admin.js') }}?v=20260920-capacity" defer></script>
 <script src="{{ asset('js/menu-browser.js') }}" defer></script>
 @endpush
 

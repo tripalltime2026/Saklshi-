@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BookingSlot;
-use App\Models\DiningTable;
+use App\Services\GuestCapacity;
+use App\Models\BookingSettings;
 use App\Models\MenuItem;
 use App\Models\Reservation;
 use Carbon\CarbonImmutable;
@@ -25,7 +25,7 @@ class ReservationController extends Controller
         $databaseReady = true;
 
         try {
-            DiningTable::query()->where('active', true)->count();
+            $settings = app(GuestCapacity::class)->settings();
             $menu = MenuItem::query()
                 ->where('active', true)
                 ->orderBy('category')
@@ -35,6 +35,7 @@ class ReservationController extends Controller
             report($e);
             $databaseReady = false;
             $menu = collect();
+            $settings = new BookingSettings(['max_party_size' => 20]);
         }
 
         // Default to the next bookable whole-hour slot in the restaurant's timezone.
@@ -45,6 +46,7 @@ class ReservationController extends Controller
 
         return view('reservation', [
             'databaseReady' => $databaseReady,
+            'maxPartySize' => $settings->max_party_size,
             'menu' => $menu,
             'today' => $current->toDateString(),
             'defaultVisitDate' => $nextVisit->toDateString(),
@@ -58,7 +60,7 @@ class ReservationController extends Controller
         $validated = $request->validate([
             'date' => ['required', 'date_format:Y-m-d'],
             'start' => ['required', 'integer', 'min:720', 'max:1320'],
-            'guests' => ['nullable', 'integer', 'min:1', 'max:20'],
+            'guests' => ['nullable', 'integer', 'min:1', 'max:255'],
         ]);
 
         $start = (int) $validated['start'];
@@ -68,33 +70,30 @@ class ReservationController extends Controller
         }
 
         try {
-            $occupied = BookingSlot::query()
-                ->whereDate('visit_date', $validated['date'])
-                ->where('minute', '>=', $start)
-                ->where('minute', '<', $start + 120)
-                ->distinct()
-                ->pluck('dining_table_id')
-                ->map(fn ($id) => (int) $id)
-                ->values();
-
-            $available = DiningTable::query()
-                ->where('active', true)
-                ->where('capacity', '>=', (int) ($validated['guests'] ?? 1))
-                ->whereNotIn('id', $occupied)
-                ->count();
+            $capacity = app(GuestCapacity::class);
+            $settings = $capacity->settings();
+            $free = $capacity->remaining($validated['date'], $start, $start + $settings->duration_minutes + $settings->buffer_minutes, $settings);
+            $guests = (int) ($validated['guests'] ?? 1);
+            $visitAt = CarbonImmutable::createFromFormat('Y-m-d H:i', $validated['date'].' '.sprintf('%02d:%02d', intdiv($start, 60), $start % 60), 'Asia/Tbilisi');
+            $now = CarbonImmutable::now('Asia/Tbilisi');
+            $bookable = $settings->active && $guests <= $settings->max_party_size
+                && $free >= $guests && $visitAt->greaterThan($now) && $visitAt->lessThanOrEqualTo($now->addDays(90));
 
             return response()->json([
-                'occupied' => $occupied,
-                'available' => $available,
-                'free_seats' => (int) DiningTable::query()->where('active', true)->whereNotIn('id', $occupied)->sum('capacity'),
-                'local_now' => now('Asia/Tbilisi')->format('Y-m-d H:i'),
+                'available' => $bookable ? 1 : 0,
+                'free_seats' => $free,
+                'capacity' => $settings->capacity,
+                'max_party_size' => $settings->max_party_size,
+                'duration_minutes' => $settings->duration_minutes,
+                'buffer_minutes' => $settings->buffer_minutes,
+                'booking_open' => $settings->active,
+                'local_now' => $now->format('Y-m-d H:i'),
             ])->header('Cache-Control', 'no-store');
         } catch (Throwable $e) {
             report($e);
 
             return response()->json([
                 'message' => 'ბაზა ჯერ არ არის მომზადებული.',
-                'occupied' => [],
                 'available' => 0,
             ], 503);
         }
@@ -105,7 +104,7 @@ class ReservationController extends Controller
         $validated = $request->validate([
             'visit_date' => ['required', 'date_format:Y-m-d'],
             'visit_time' => ['required', 'regex:/^(1[2-9]|2[0-2]):(00|30)$/'],
-            'guests' => ['required', 'integer', 'min:1', 'max:20'],
+            'guests' => ['required', 'integer', 'min:1', 'max:255'],
             'occasion' => ['required', Rule::in(['banquet', 'birthday', 'friends', 'couple'])],
             'first_name' => ['required', 'string', 'min:2', 'max:80'],
             'last_name' => ['required', 'string', 'min:2', 'max:80'],
@@ -169,27 +168,9 @@ class ReservationController extends Controller
 
         try {
             $reservation = DB::transaction(function () use ($validated, $phone, $start, $birthDate, $selectedItems) {
-                $occupiedIds = BookingSlot::query()
-                    ->whereDate('visit_date', $validated['visit_date'])
-                    ->where('minute', '>=', $start)
-                    ->where('minute', '<', $start + 120)
-                    ->distinct()
-                    ->pluck('dining_table_id');
-
-                $table = DiningTable::query()
-                    ->where('active', true)
-                    ->where('capacity', '>=', (int) $validated['guests'])
-                    ->whereNotIn('id', $occupiedIds)
-                    ->orderBy('capacity')
-                    ->orderBy('id')
-                    ->lockForUpdate()
-                    ->first();
-
-                if (! $table) {
-                    throw ValidationException::withMessages([
-                        'visit_time' => 'არჩეულ დროს ამ რაოდენობის სტუმრებისთვის თავისუფალი მაგიდა აღარ არის. გთხოვთ აირჩიოთ სხვა დრო.',
-                    ]);
-                }
+                $capacity = app(GuestCapacity::class);
+                $settings = $capacity->settings(true);
+                $capacity->assertAvailable($validated['visit_date'], $start, (int) $validated['guests'], $settings);
 
                 $menuItems = MenuItem::query()
                     ->whereIn('id', $selectedItems->keys())
@@ -211,8 +192,9 @@ class ReservationController extends Controller
                     'reference' => $reference,
                     'visit_date' => $validated['visit_date'],
                     'start_minute' => $start,
-                    'end_minute' => $start + 120,
-                    'dining_table_id' => $table->id,
+                    'end_minute' => $start + $settings->duration_minutes,
+                    'capacity_end_minute' => $start + $settings->duration_minutes + $settings->buffer_minutes,
+                    'dining_table_id' => null,
                     'guests' => (int) $validated['guests'],
                     'occasion' => $validated['occasion'],
                     'first_name' => trim($validated['first_name']),
@@ -239,14 +221,10 @@ class ReservationController extends Controller
                     ]);
                 }
 
-                for ($slot = $start; $slot < $start + 120; $slot += 30) {
-                    BookingSlot::create([
-                        'reservation_id' => $reservation->id,
-                        'dining_table_id' => $table->id,
-                        'visit_date' => $validated['visit_date'],
-                        'minute' => $slot,
-                    ]);
-                }
+                DB::table('reservation_status_history')->insert([
+                    'reservation_id' => $reservation->id, 'from_status' => null,
+                    'to_status' => 'confirmed', 'actor' => 'website', 'created_at' => now(),
+                ]);
 
                 return $reservation;
             }, 3);

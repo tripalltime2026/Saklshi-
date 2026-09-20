@@ -41,15 +41,15 @@ check($guard->handle(req('/admin'), fn () => response('protected'))->getStatusCo
 $session->put('saklshi_admin_login_at', time() - 28801);
 check($guard->handle(req('/admin'), fn () => response('protected'))->getStatusCode() === 302, 'Expired login requires password again');
 $auth->login(req('/admin/login', 'POST', ['login' => 'test-admin', 'password' => 'test-only-password']));
-App\Models\DiningTable::create(['name' => 'Test table', 'capacity' => 4, 'x' => 40, 'y' => 40, 'active' => true]);
+App\Models\BookingSettings::findOrFail(1)->update(['capacity' => 2]);
 $controller = new App\Http\Controllers\ReservationController;
 $date = now('Asia/Tbilisi')->addDay()->toDateString();
 $available = fn (int $start) => $controller->availability(req('/api/availability', 'GET', ['date' => $date, 'start' => $start, 'guests' => 2]))->getData(true);
-check($available(840)['available'] === 1 && $available(840)['free_seats'] === 4, 'Initial table capacity');
+check($available(840)['available'] === 1 && $available(840)['free_seats'] === 2, 'Initial guest capacity without dining tables');
 $data = ['visit_date' => $date, 'visit_time' => '14:00', 'guests' => 2, 'occasion' => 'friends', 'first_name' => 'Test', 'last_name' => 'Guest', 'phone' => '+995555000001', 'birth_date' => '1990-01-01'];
 $controller->store(req('/reservations', 'POST', $data));
 check(App\Models\Reservation::count() === 1, 'Reservation is persisted');
-check($available(840)['available'] === 0 && $available(840)['free_seats'] === 0, 'Reservation subtracts table and seats');
+check($available(840)['available'] === 0 && $available(840)['free_seats'] === 0, 'Reservation subtracts guests');
 check($available(900)['available'] === 0, 'Overlapping slot unavailable');
 check($available(960)['available'] === 1, 'Next non-overlapping slot remains available');
 try {
@@ -139,7 +139,7 @@ $opsData = $ops->index(req('/admin'))->getData();
 check($opsData['allDates'] && $opsData['reservations']->contains('id', $menuReservation->id), 'Default dashboard includes future bookings');
 $opsHtml = $ops->index(req('/admin'))->render();
 check(str_contains($opsHtml, 'data-order-detail="'.$menuReservation->id.'"'), 'Ordered dishes are visible in the booking list');
-check(str_contains($opsHtml, $menuReservation->table->name), 'Assigned table appears with the reservation');
+check($menuReservation->dining_table_id === null && str_contains($opsHtml, 'სტუმრების რაოდენობით'), 'Booking has no table assignment');
 $live = $ops->live(req('/admin/live'));
 check($live->getStatusCode() === 200 && str_contains($live->getContent(), $menuReservation->reference), 'Live refresh includes newly committed booking');
 $exports = new App\Http\Controllers\AdminExportController;
@@ -163,3 +163,45 @@ check(App\Models\Reservation::count() === $beforeMismatch, 'Missing preorder pay
 foreach (['reservations', 'orders', 'guests', 'menu', 'backup'] as $type) {
     check($guard->handle(req('/admin/export/'.$type), fn () => response('private'))->getStatusCode() === 302, 'Unauthenticated '.$type.' export blocked');
 }
+
+// Capacity is shared by guests, not constrained by individual table sizes.
+App\Models\BookingSettings::findOrFail(1)->update(['capacity' => 10, 'max_party_size' => 10]);
+$party = $data;
+$party['visit_date'] = now('Asia/Tbilisi')->addDays(3)->toDateString();
+$party['guests'] = 6;
+$controller->store(req('/reservations', 'POST', $party + ['dining_table_id' => 999]));
+$large = App\Models\Reservation::latest('id')->firstOrFail();
+check($large->guests === 6 && $large->dining_table_id === null && App\Models\BookingSlot::count() === 0, 'Large group books without tables or table slots');
+$party['guests'] = 4;
+$controller->store(req('/reservations', 'POST', $party));
+$capacity = app(App\Services\GuestCapacity::class);
+check($capacity->remaining($party['visit_date'], 840, 960, $capacity->settings()) === 0, 'Two parties share all ten seats');
+try {
+    $controller->store(req('/reservations', 'POST', array_replace($party, ['guests' => 1])));
+    throw new RuntimeException('Over capacity accepted');
+} catch (Illuminate\Validation\ValidationException $e) {}
+$settingsData = ['capacity' => 9, 'max_party_size' => 10, 'duration_minutes' => 120, 'buffer_minutes' => 30, 'active' => 1];
+try {
+    $admin->updateBookingSettings(req('/admin/booking-settings', 'PUT', $settingsData));
+    throw new RuntimeException('Capacity reduced below committed guests');
+} catch (Illuminate\Validation\ValidationException $e) {}
+check($capacity->settings()->capacity === 10, 'Unsafe capacity reduction is rolled back');
+$admin->updateBookingSettings(req('/admin/booking-settings', 'PUT', array_replace($settingsData, ['capacity' => 10])));
+check(Illuminate\Support\Facades\DB::table('booking_audit_logs')->count() === 1, 'Settings changes have an audit trail');
+check($large->fresh()->capacity_end_minute === 960, 'New buffer does not rewrite previous reservations');
+$party['visit_date'] = now('Asia/Tbilisi')->addDays(4)->toDateString();
+$controller->store(req('/reservations', 'POST', array_replace($party, ['guests' => 10])));
+check($capacity->remaining($party['visit_date'], 960, 1080, $capacity->settings()) === 0, 'Buffer blocks seats after visit ends');
+check($capacity->remaining($party['visit_date'], 990, 1110, $capacity->settings()) === 10, 'Seats released exactly at buffer boundary');
+$admin->updateBookingSettings(req('/admin/booking-settings', 'PUT', array_replace($settingsData, ['capacity' => 10, 'active' => 0])));
+$closed = $controller->availability(req('/api/availability', 'GET', ['date' => $party['visit_date'], 'start' => 1080, 'guests' => 1]))->getData(true);
+check($closed['available'] === 0 && !$closed['booking_open'], 'Paused restaurant cannot accept reservations');
+try {
+    $controller->store(req('/reservations', 'POST', array_replace($party, ['visit_time' => '18:00'])));
+    throw new RuntimeException('Paused booking accepted');
+} catch (Illuminate\Validation\ValidationException $e) {}
+check(Illuminate\Support\Facades\DB::table('reservation_status_history')->where('reservation_id', $reservation->id)->count() === 2, 'Initial and cancellation status recorded');
+check($capacity->peak([
+    (object) ['start_minute' => 720, 'capacity_end_minute' => 840, 'guests' => 6],
+    (object) ['start_minute' => 840, 'capacity_end_minute' => 960, 'guests' => 7],
+], 780, 900) === 7, 'Adjacent bookings are not incorrectly summed');

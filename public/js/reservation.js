@@ -100,12 +100,14 @@
         });
     });
 
-    const guestCount = document.querySelector('[data-guest-count]');
+    let maxPartySize = Number(page.dataset.maxPartySize) || 20;
+    guestsInput.addEventListener('change', () => setGuests(guestsInput.value));
 
     const setGuests = (value) => {
-        const nextValue = Math.max(1, Math.min(20, Number(value) || 1));
+        const nextValue = Math.max(1, Math.min(maxPartySize, Math.trunc(Number(value)) || 1));
         guestsInput.value = String(nextValue);
-        guestCount.textContent = String(nextValue);
+        document.querySelector('[data-guest-minus]').disabled = nextValue <= 1;
+        document.querySelector('[data-guest-plus]').disabled = nextValue >= maxPartySize;
         updateSummary();
     };
 
@@ -244,7 +246,7 @@
         if (changed) {
             availableCount = null;
             submit.disabled = true;
-            availability.textContent = 'ვამოწმებთ თავისუფალ მაგიდებს…';
+            availability.textContent = 'ვამოწმებთ თავისუფალ ადგილებს…';
         }
         availabilityKey = key;
         lastChecked = Date.now();
@@ -259,6 +261,8 @@
             const data = await response.json();
             if (availabilityController !== controller) return;
             availableCount = Number(data.available);
+            maxPartySize = Number(data.max_party_size);
+            guestsInput.max = String(maxPartySize);
             const when = parseDate(dateInput.value);
             when.setHours(hour, minute, 0, 0);
             // Use the server's Tbilisi time; visitors can be in another timezone.
@@ -269,8 +273,10 @@
             });
             submit.disabled = availableCount < 1 || past;
             availability.textContent = past ? 'აირჩიეთ მომავალი დრო.' : availableCount > 0
-                ? 'თავისუფალია ' + availableCount + ' შესაბამისი მაგიდა · სულ ' + data.free_seats + ' თავისუფალი ადგილი'
-                : 'არჩეულ დროს შესაბამისი მაგიდა აღარ არის. აირჩიეთ სხვა დრო.';
+                ? 'თავისუფალია ' + data.free_seats + ' ადგილი · თქვენი სტუმრებისთვის ადგილი არის'
+                : !data.booking_open ? 'ონლაინ ჯავშნების მიღება დროებით შეჩერებულია.'
+                : Number(guestsInput.value) > maxPartySize ? 'ერთ ჯავშანში მაქსიმუმ ' + maxPartySize + ' სტუმარია დაშვებული.'
+                : 'არჩეულ დროს საკმარისი ადგილი აღარ არის. აირჩიეთ სხვა დრო.';
         } catch (error) {
             if (availabilityController !== controller) return;
             availableCount = null;

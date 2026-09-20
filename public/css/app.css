@@ -622,3 +622,6 @@ a{text-decoration:none;color:inherit}
         height:42px;
     }
 }
+
+.guest-counter input[type="number"] { width: 76px; min-width: 0; border: 0; text-align: center; font-size: 24px; font-weight: 700; background: transparent; color: inherit; }
+.guest-capacity-note { font-size: 12px; line-height: 1.6; margin-top: 12px; }

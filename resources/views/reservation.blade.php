@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'მაგიდის დაჯავშნა — ბათუმის სახლში')
+@section('title', 'ვიზიტის დაჯავშნა — ბათუმის სახლში')
 @section('body-class', 'reservation-shell')
 
 @php
@@ -15,6 +15,7 @@
 
 @section('content')
 <div class="guest-page"
+     data-max-party-size="{{ $maxPartySize }}"
      data-min-date="{{ $today }}"
      data-max-date="{{ $maxDate }}"
      data-database-ready="{{ $databaseReady ? '1' : '0' }}">
@@ -36,7 +37,7 @@
                 <span>☎</span>
                 <span><strong>+995 555 12 34 56</strong><small>დაგვიკავშირდით</small></span>
             </a>
-            <a class="book-chip" href="#booking">▣ დაჯავშნე მაგიდა</a>
+            <a class="book-chip" href="#booking">▣ დაჯავშნე ვიზიტი</a>
         </div>
     </header>
 
@@ -54,7 +55,7 @@
         <section class="booking-card">
             <div class="booking-title-row">
                 <div>
-                    <h2>დაჯავშნე მაგიდა</h2>
+                    <h2>დაჯავშნე ვიზიტი</h2>
                     <p>შეარჩიე თარიღი, სტუმრების რაოდენობა და სურვილის შემთხვევაში წინასწარ აირჩიე მენიუ.</p>
                 </div>
                 <div class="booking-steps">
@@ -78,7 +79,7 @@
 
             @if (! $databaseReady)
                 <div class="booking-alert warning">
-                    <strong>Preview რეჟიმი:</strong> დიზაინი აქტიურია, თუმცა ჯავშნის შესანახად საჭიროა ბაზის migration.
+                    ონლაინ ჯავშანი დროებით მიუწვდომელია. გთხოვთ სცადოთ მოგვიანებით.
                 </div>
             @endif
 
@@ -118,11 +119,11 @@
                         <label class="section-label">სტუმრების რაოდენობა</label>
                         <div class="guest-counter">
                             <button type="button" data-guest-minus aria-label="სტუმრის მოკლება">−</button>
-                            <strong data-guest-count>{{ old('guests', 4) }}</strong>
+                            <input aria-label="სტუმრების რაოდენობა" type="number" required min="1" max="{{ $maxPartySize }}" name="guests" value="{{ old('guests', min(4, $maxPartySize)) }}" data-guests-input>
                             <button type="button" data-guest-plus aria-label="სტუმრის დამატება">+</button>
                             <span>♟♟</span>
                         </div>
-                        <input type="hidden" name="guests" value="{{ old('guests', 4) }}" data-guests-input>
+                        <p class="guest-capacity-note">მიუთითეთ მხოლოდ სტუმრების რაოდენობა — განთავსებაზე ჩვენ ვიზრუნებთ.</p>
                     </div>
                 </div>
 
@@ -200,7 +201,7 @@
                         </div>
                     @empty
                         <div class="menu-empty-state">
-                            მენიუ მალე დაემატება. მაგიდის დაჯავშნა მენიუს არჩევის გარეშეც შეგიძლიათ.
+                            მენიუ მალე დაემატება. ვიზიტის დაჯავშნა მენიუს არჩევის გარეშეც შეგიძლიათ.
                         </div>
                     @endforelse
                         <div class="menu-empty-state" data-menu-no-results hidden>პოზიცია ვერ მოიძებნა.</div>
@@ -233,7 +234,7 @@
                         </label>
 
                         <label class="notes-field">დამატებითი შენიშვნა <span>(არასავალდებულო)</span>
-                            <textarea maxlength="500" name="notes" placeholder="მაგ. ფანჯარასთან მაგიდა, განსაკუთრებული ინფორმაცია...">{{ old('notes') }}</textarea>
+                            <textarea maxlength="500" name="notes" placeholder="მაგ. კვებითი შეზღუდვები, განსაკუთრებული ინფორმაცია...">{{ old('notes') }}</textarea>
                         </label>
                     </div>
 
@@ -266,7 +267,7 @@
             </div>
 
             <button type="submit" form="booking-form" class="summary-submit" {{ $databaseReady ? '' : 'disabled' }}>
-                დაჯავშნე მაგიდა <span>→</span>
+                დაჯავშნე ვიზიტი <span>→</span>
             </button>
 
             <p class="secure-note">▣ თქვენი მონაცემები დაცულია</p>
@@ -283,7 +284,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/reservation.js') }}?v=20260909-preorder" defer></script>
+<script src="{{ asset('js/reservation.js') }}?v=20260920-preorder" defer></script>
 <script src="{{ asset('js/menu-browser.js') }}" defer></script>
 @endpush
 

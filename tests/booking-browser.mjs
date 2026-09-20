@@ -39,7 +39,15 @@ try {
   await row.locator('[data-order-detail] summary').click();
   assert.match(await row.innerText(),/ქალაქური/);
   assert.match(await row.innerText(),/31\.80/);
-  assert.match(await row.locator('.table-pill').innerText(),/მაგიდა/);
+  assert.match(await row.locator('.table-pill').innerText(),/სტუმრების რაოდენობით/);
+  assert.ok(!confirmation.includes('მაგიდა'));
+  await guest.goto('/');
+  await guest.setViewportSize({width:390,height:844});
+  await guest.locator('[data-guests-input]').fill('6');
+  await guest.locator('[data-guests-input]').blur();
+  await guest.waitForFunction(()=>document.querySelector('[data-summary-guests]').textContent==='6');
+  assert.equal(await guest.locator('[name="dining_table_id"]').count(),0);
+  assert.ok(await guest.evaluate(()=>document.documentElement.scrollWidth <= innerWidth));
   // Unchanged open menu detail survives another poll.
   await admin.waitForResponse(r=>r.url().includes('/admin/live') && r.status()===200);
   assert.equal(await row.locator('[data-order-detail]').getAttribute('open'),'');

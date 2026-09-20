@@ -13,6 +13,7 @@ class Reservation extends Model
         'visit_date',
         'start_minute',
         'end_minute',
+        'capacity_end_minute',
         'dining_table_id',
         'guests',
         'occasion',
@@ -35,6 +36,7 @@ class Reservation extends Model
             'visit_date' => 'date:Y-m-d',
             'start_minute' => 'integer',
             'end_minute' => 'integer',
+            'capacity_end_minute' => 'integer',
             'guests' => 'integer',
             'birth_day' => 'integer',
             'birth_month' => 'integer',
@@ -52,6 +54,11 @@ class Reservation extends Model
     public function items(): HasMany
     {
         return $this->hasMany(ReservationItem::class);
+    }
+
+    public function statusHistory(): HasMany
+    {
+        return $this->hasMany(ReservationStatusHistory::class)->orderBy('id');
     }
 
     public function slots(): HasMany
