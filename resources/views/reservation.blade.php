@@ -37,6 +37,7 @@
                 <span>☎</span>
                 <span><strong>+995 555 12 34 56</strong><small>დაგვიკავშირდით</small></span>
             </a>
+            <a class="account-chip" href="{{ $customer ? route('account.dashboard') : route('account.login') }}">{{ $customer ? 'ჩემი პროფილი' : 'შესვლა' }}</a>
             <a class="book-chip" href="#booking">▣ დაჯავშნე ვიზიტი</a>
         </div>
     </header>
@@ -218,19 +219,19 @@
 
                     <div class="personal-grid">
                         <label>სახელი
-                            <input required minlength="2" maxlength="80" autocomplete="given-name" name="first_name" value="{{ old('first_name') }}" placeholder="მაგ. ანა">
+                            <input required minlength="2" maxlength="80" autocomplete="given-name" name="first_name" value="{{ old('first_name', $customer?->profile?->first_name) }}" placeholder="მაგ. ანა">
                         </label>
 
                         <label>გვარი
-                            <input required minlength="2" maxlength="80" autocomplete="family-name" name="last_name" value="{{ old('last_name') }}" placeholder="მაგ. ბერიძე">
+                            <input required minlength="2" maxlength="80" autocomplete="family-name" name="last_name" value="{{ old('last_name', $customer?->profile?->last_name) }}" placeholder="მაგ. ბერიძე">
                         </label>
 
                         <label>დაბადების თარიღი
-                            <input required type="date" name="birth_date" value="{{ old('birth_date') }}" max="{{ $today }}">
+                            <input required type="date" name="birth_date" value="{{ old('birth_date', $customer?->profile?->birth_date?->format('Y-m-d')) }}" max="{{ $today }}">
                         </label>
 
                         <label>ტელეფონი
-                            <input required type="tel" maxlength="24" autocomplete="tel" name="phone" value="{{ old('phone', '+995 ') }}" placeholder="+995 555 12 34 56">
+                            <input required type="tel" maxlength="24" autocomplete="tel" name="phone" value="{{ old('phone', $customer?->phone ?: '+995 ') }}" {{ $customer ? 'readonly' : '' }} placeholder="+995 555 12 34 56">
                         </label>
 
                         <label class="notes-field">დამატებითი შენიშვნა <span>(არასავალდებულო)</span>
@@ -240,7 +241,7 @@
 
                     <input type="hidden" name="marketing_consent" value="0">
                     <label class="marketing-consent">
-                        <input type="checkbox" name="marketing_consent" value="1" {{ old('marketing_consent') ? 'checked' : '' }}>
+                        <input type="checkbox" name="marketing_consent" value="1" {{ old('marketing_consent', $customer?->profile?->marketing_consent) ? 'checked' : '' }}>
                         <span>მსურს მივიღო პერსონალური შეთავაზებები და დაბადების დღის მოწვევა.</span>
                     </label>
                 </div>
