@@ -37,7 +37,7 @@
         <section class="confirmation-box">
             <div class="confirmation-check">✓</div>
             <span class="confirmation-eyebrow">გელოდებით სახლში</span>
-            <h1>მაგიდა დაჯავშნილია</h1>
+            <h1>ვიზიტი დაჯავშნილია</h1>
             <p>{{ $reservation->first_name }}, თქვენი ჯავშანი წარმატებით შევინახეთ.</p>
 
             <div class="confirmation-summary">
@@ -45,7 +45,6 @@
                 <div><span>დრო</span><strong>{{ $time }}</strong></div>
                 <div><span>სტუმრები</span><strong>{{ $reservation->guests }} ადამიანი</strong></div>
                 <div><span>მიზეზი</span><strong>{{ $occasionNames[$reservation->occasion] ?? 'რეზერვაცია' }}</strong></div>
-                <div><span>მაგიდა</span><strong>{{ optional($reservation->table)->name ?? 'დადასტურებულია' }}</strong></div>
                 <div><span>ჯავშნის კოდი</span><strong>{{ $reservation->reference }}</strong></div>
             </div>
 

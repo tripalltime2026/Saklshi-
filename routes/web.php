@@ -35,9 +35,8 @@ Route::prefix('admin')->middleware('saklshi.admin')->group(function () {
 
     Route::delete('/menu/{menuItem}', [AdminController::class, 'destroyMenu'])->name('admin.menu.destroy');
 
-    Route::post('/tables', [AdminController::class, 'storeTable'])->name('admin.tables.store');
-    Route::put('/tables/{diningTable}', [AdminController::class, 'updateTable'])->name('admin.tables.update');
-    Route::patch('/tables/{diningTable}/toggle', [AdminController::class, 'toggleTable'])->name('admin.tables.toggle');
+    Route::put('/booking-settings', [AdminController::class, 'updateBookingSettings'])->name('admin.booking-settings.update');
+
 });
 
 

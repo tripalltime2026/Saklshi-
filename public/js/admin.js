@@ -1,5 +1,5 @@
 (() => {
-    let active = ['bookings', 'tables', 'guests', 'menu'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'bookings';
+    let active = ['bookings', 'capacity', 'guests', 'menu'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'bookings';
     let refreshing = false;
     let floorMode = 'map';
     const activate = (name) => {

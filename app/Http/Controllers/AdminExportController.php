@@ -28,7 +28,7 @@ class AdminExportController extends Controller
             return response()->streamDownload(function () {
                 // Operational data only: never export sessions, credentials or environment configuration.
                 echo '{"format":"saklshi-operational-data-v1","exported_at":'.json_encode(now()->toIso8601String()).',"currency":"GEL","prices_unit":"tetri","tables":{';
-                $tables = ['dining_tables', 'menu_items', 'reservations', 'reservation_items', 'booking_slots'];
+                $tables = ['dining_tables', 'menu_items', 'reservations', 'reservation_items', 'booking_slots', 'booking_settings', 'reservation_status_history', 'booking_audit_logs'];
                 foreach ($tables as $index => $table) {
                     echo ($index ? ',' : '').json_encode($table).':[';
                     $first = true;
@@ -67,7 +67,7 @@ class AdminExportController extends Controller
                         $guest->visit_date->format('Y-m-d'), $guest->marketing_consent ? 'კი' : 'არა', $guest->consent_at?->toIso8601String()]);
                 }
             } else {
-                $common = ['ჯავშნის კოდი', 'თარიღი', 'დაწყება', 'დასრულება', 'სახელი', 'გვარი', 'ტელეფონი', 'სტუმრები', 'მაგიდა', 'სტატუსი'];
+                $common = ['ჯავშნის კოდი', 'თარიღი', 'დაწყება', 'დასრულება', 'სახელი', 'გვარი', 'ტელეფონი', 'სტუმრები', 'ისტორიული მაგიდა', 'სტატუსი'];
                 $write(array_merge($common, $type === 'orders'
                     ? ['კერძი', 'რაოდენობა', 'ერთეულის ფასი GEL', 'ჯამი GEL']
                     : ['მიზეზი', 'მენიუ', 'მენიუს რაოდენობა', 'მენიუს ჯამი GEL', 'შენიშვნა', 'შექმნილია', 'წყარო']));

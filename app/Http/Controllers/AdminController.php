@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DiningTable;
-use App\Models\BookingSlot;
+use App\Services\GuestCapacity;
 use Illuminate\Support\Facades\DB;
 use App\Models\MenuItem;
 use App\Models\Reservation;
@@ -29,16 +28,17 @@ class AdminController extends Controller
         $allDates = $request->query('scope') !== 'day' && ! $request->filled('date');
         $mapStart = (int) $request->query('start', min(1320, max(720, (int) floor((now('Asia/Tbilisi')->hour * 60 + now('Asia/Tbilisi')->minute) / 30) * 30)));
         $freeSeats = 0;
-        $freeTables = 0;
         $query = trim((string) $request->query('q', ''));
         $date = (string) $request->query('date', '');
         $today = now('Asia/Tbilisi')->toDateString();
         $mapDate = $date !== '' ? $date : $today;
         $databaseReady = true;
         $databaseError = null;
+        $bookingSettings = null;
+        $settingsHistory = collect();
 
         try {
-            $requiredTables = ['reservations', 'dining_tables', 'menu_items', 'reservation_items', 'booking_slots'];
+            $requiredTables = ['booking_settings', 'reservation_status_history', 'reservations', 'dining_tables', 'menu_items', 'reservation_items', 'booking_slots'];
 
             foreach ($requiredTables as $tableName) {
                 if (! Schema::hasTable($tableName)) {
@@ -50,7 +50,7 @@ class AdminController extends Controller
 
             if ($databaseReady) {
                 $reservations = Reservation::query()
-                    ->with(['table', 'items'])
+                    ->with(['table', 'items', 'statusHistory'])
                     ->when($date !== '', fn ($q) => $q->whereDate('visit_date', $date))
                     ->when($date === '' && ! $allDates, fn ($q) => $q->whereDate('visit_date', $today))
                     ->when($status !== '', fn ($q) => $q->where('status', $status))
@@ -78,7 +78,6 @@ class AdminController extends Controller
                     'visits' => (int) ($visitCounts[$latest->phone] ?? 0),
                 ]);
 
-                $tables = DiningTable::query()->orderBy('id')->get();
                 $menu = $request->attributes->get('live') ? collect() : MenuItem::query()->orderBy('category')->orderBy('sort_order')->orderBy('name')->get();
 
                 $todayReservations = Reservation::query()
@@ -101,16 +100,11 @@ class AdminController extends Controller
                     }
                 }
 
-                $reservedTableIds = BookingSlot::query()
-                    ->whereDate('visit_date', $mapDate)
-                    ->where('minute', '>=', $mapStart)
-                    ->where('minute', '<', $mapStart + 120)
-                    ->distinct()->pluck('dining_table_id')->map(fn ($id) => (int) $id)->all();
-                $activeTables = $tables->where('active', true);
-                $restaurantCapacity = (int) $activeTables->sum('capacity');
-                $freeTableRows = $activeTables->whereNotIn('id', $reservedTableIds);
-                $freeSeats = (int) $freeTableRows->sum('capacity');
-                $freeTables = $freeTableRows->count();
+                $capacity = app(GuestCapacity::class);
+                $bookingSettings = $capacity->settings();
+                $settingsHistory = DB::table('booking_audit_logs')->latest('id')->limit(20)->get();
+                $restaurantCapacity = $bookingSettings->capacity;
+                $freeSeats = $capacity->remaining($mapDate, $mapStart, $mapStart + $bookingSettings->duration_minutes + $bookingSettings->buffer_minutes, $bookingSettings);
                 $occupancyPercent = $restaurantCapacity > 0
                     ? (int) round(100 * ($restaurantCapacity - $freeSeats) / $restaurantCapacity) : 0;
 
@@ -137,7 +131,6 @@ class AdminController extends Controller
             } else {
                 $reservations = collect();
                 $guests = collect();
-                $tables = collect();
                 $menu = collect();
                 $todayReservations = collect();
                 $todayCount = 0;
@@ -145,7 +138,6 @@ class AdminController extends Controller
                 $restaurantCapacity = 0;
                 $occupancyPercent = 0;
                 $todayPreorderRevenue = 0;
-                $reservedTableIds = [];
                 $statusBreakdown = collect();
                 $todayByPeriod = [
                     'lunch' => ['reservations' => 0, 'guests' => 0],
@@ -163,7 +155,6 @@ class AdminController extends Controller
 
             $reservations = collect();
             $guests = collect();
-            $tables = collect();
             $menu = collect();
             $todayReservations = collect();
             $todayCount = 0;
@@ -171,7 +162,6 @@ class AdminController extends Controller
             $restaurantCapacity = 0;
             $occupancyPercent = 0;
             $todayPreorderRevenue = 0;
-            $reservedTableIds = [];
             $statusBreakdown = collect();
             $todayByPeriod = [
                 'lunch' => ['reservations' => 0, 'guests' => 0],
@@ -186,10 +176,10 @@ class AdminController extends Controller
             'allDates' => $allDates,
             'mapStart' => $mapStart,
             'freeSeats' => $freeSeats,
-            'freeTables' => $freeTables,
+            'bookingSettings' => $bookingSettings,
+            'settingsHistory' => $settingsHistory,
             'guests' => $guests,
             'menu' => $menu,
-            'tables' => $tables,
             'todayReservations' => $todayReservations,
             'todayByPeriod' => $todayByPeriod,
             'today' => $today,
@@ -200,7 +190,6 @@ class AdminController extends Controller
             'occupancyPercent' => $occupancyPercent,
             'todayPreorderRevenue' => $todayPreorderRevenue,
             'repeatGuests' => $guests->where('visits', '>', 1)->count(),
-            'reservedTableIds' => $reservedTableIds,
             'statusBreakdown' => $statusBreakdown,
             'query' => $query,
             'date' => $date,
@@ -224,6 +213,7 @@ class AdminController extends Controller
         ]);
 
         DB::transaction(function () use ($reservation, $validated) {
+            app(GuestCapacity::class)->settings(true);
             $locked = Reservation::query()->lockForUpdate()->findOrFail($reservation->id);
             $allowed = [
                 'confirmed' => ['arrived', 'cancelled', 'no_show'],
@@ -235,13 +225,51 @@ class AdminController extends Controller
                     'status' => 'სტატუსის ასეთი ცვლილება დაუშვებელია. განაახლეთ გვერდი.',
                 ]);
             }
-            $locked->update(['status' => $validated['status']]);
+            if ($locked->status !== $validated['status']) {
+                DB::table('reservation_status_history')->insert([
+                    'reservation_id' => $locked->id, 'from_status' => $locked->status,
+                    'to_status' => $validated['status'], 'actor' => 'admin:'.config('saklshi.admin_login'),
+                    'created_at' => now(),
+                ]);
+                $locked->update(['status' => $validated['status']]);
+            }
             if (in_array($validated['status'], ['cancelled', 'no_show', 'completed'], true)) {
                 $locked->slots()->delete();
             }
         }, 3);
 
         return back()->with('success', 'ჯავშნის სტატუსი განახლდა.');
+    }
+
+    public function updateBookingSettings(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'capacity' => ['required', 'integer', 'min:0', 'max:10000'],
+            'max_party_size' => ['required', 'integer', 'min:1', 'max:255'],
+            'duration_minutes' => ['required', 'integer', 'min:30', 'max:240', 'multiple_of:30'],
+            'buffer_minutes' => ['required', 'integer', 'min:0', 'max:120', 'multiple_of:30'],
+            'active' => ['required', 'boolean'],
+        ]);
+        DB::transaction(function () use ($data) {
+            $capacity = app(GuestCapacity::class);
+            $settings = $capacity->settings(true);
+            $future = Reservation::query()->whereDate('visit_date', '>=', now('Asia/Tbilisi')->toDateString())
+                ->whereIn('status', GuestCapacity::ACTIVE_STATUSES)->lockForUpdate()->get()->groupBy(fn ($r) => $r->visit_date->toDateString());
+            foreach ($future as $date => $reservations) {
+                if ($capacity->peak($reservations) > (int) $data['capacity']) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'capacity' => $date.'-ის არსებული ჯავშნები აღემატება ახალ ტევადობას. ჯერ მოაგვარეთ არსებული ჯავშნები.',
+                    ]);
+                }
+            }
+            $before = $settings->only(['capacity', 'max_party_size', 'duration_minutes', 'buffer_minutes', 'active']);
+            $settings->update($data);
+            DB::table('booking_audit_logs')->insert([
+                'action' => 'booking_settings.updated', 'actor' => 'admin:'.config('saklshi.admin_login'),
+                'before' => json_encode($before), 'after' => json_encode($settings->only(array_keys($before))), 'created_at' => now(),
+            ]);
+        }, 3);
+        return redirect()->to(route('admin.dashboard').'#capacity')->with('success', 'ჯავშნის პარამეტრები განახლდა.');
     }
 
     public function storeMenu(Request $request): RedirectResponse
@@ -274,27 +302,6 @@ class AdminController extends Controller
             ->with('success', 'კერძი წაიშალა. არსებული ჯავშნების შეკვეთები შენარჩუნებულია.');
     }
 
-    public function storeTable(Request $request): RedirectResponse
-    {
-        DiningTable::create($this->validateTable($request));
-
-        return back()->with('success', 'მაგიდა დაემატა.');
-    }
-
-    public function updateTable(Request $request, DiningTable $diningTable): RedirectResponse
-    {
-        $diningTable->update($this->validateTable($request, $diningTable));
-
-        return back()->with('success', 'მაგიდა განახლდა.');
-    }
-
-    public function toggleTable(DiningTable $diningTable): RedirectResponse
-    {
-        $diningTable->update(['active' => ! $diningTable->active]);
-
-        return back()->with('success', 'მაგიდის სტატუსი განახლდა.');
-    }
-
     private function validateMenu(Request $request): array
     {
         $validated = $request->validate([
@@ -319,28 +326,4 @@ class AdminController extends Controller
         ];
     }
 
-    private function validateTable(Request $request, ?DiningTable $table = null): array
-    {
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:80',
-                Rule::unique('dining_tables', 'name')->ignore($table?->id),
-            ],
-            'capacity' => ['required', 'integer', 'min:1', 'max:20'],
-            'x' => ['required', 'integer', 'min:8', 'max:92'],
-            'y' => ['required', 'integer', 'min:12', 'max:88'],
-            'active' => ['nullable', 'boolean'],
-        ]);
-
-        return [
-            'name' => trim($validated['name']),
-            'capacity' => (int) $validated['capacity'],
-            'x' => (int) $validated['x'],
-            'y' => (int) $validated['y'],
-            'active' => (bool) ($validated['active'] ?? false),
-        ];
-    }
 }
-

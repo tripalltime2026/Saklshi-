@@ -10,6 +10,17 @@ on:
 jobs:
   laravel:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-capacity-only
+          MYSQL_DATABASE: capacity_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -pci-capacity-only"
+          --health-interval=10s --health-timeout=5s --health-retries=10
     steps:
       - uses: actions/checkout@v4
 
@@ -17,7 +28,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-          extensions: mbstring, pdo_sqlite
+          extensions: mbstring, pdo_sqlite, pdo_mysql
           coverage: none
 
       - name: Validate Composer
@@ -41,7 +52,9 @@ jobs:
           php artisan db:seed --force
 
       - name: Verify authentication and booking capacity
-        run: php tests/operations.php
+        run: |
+          php tests/operations.php
+          php tests/capacity-migration.php
 
       - name: Smoke test
         run: |
@@ -75,8 +88,22 @@ jobs:
 
       - name: Verify preorder and live admin in browser
         run: |
+          php tests/prepare-browser.php
           SESSION_SECURE_COOKIE=false ADMIN_LOGIN=test-admin ADMIN_PASSWORD=ci-only-password php artisan serve --host=127.0.0.1 --port=8001 > /tmp/saklshi-browser.log 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID"' EXIT
           for attempt in 1 2 3 4 5; do curl -sf -o /dev/null http://localhost:8001/up && break || sleep 1; done
           node tests/booking-browser.mjs
+
+      - name: Verify simultaneous capacity bookings on MySQL
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: capacity_test
+          DB_USERNAME: root
+          DB_PASSWORD: ci-capacity-only
+        run: |
+          php artisan migrate --force
+          php tests/concurrent-capacity.php
