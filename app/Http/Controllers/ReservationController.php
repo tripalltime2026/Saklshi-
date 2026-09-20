@@ -21,11 +21,13 @@ use Throwable;
 
 class ReservationController extends Controller
 {
-    public function index(Request $request): View
+    public function index(?Request $request = null): View
     {
         $databaseReady = true;
         $customer = null;
-        $customerId = (int) $request->session()->get('saklshi_customer_id', 0);
+        $customerId = $request && $request->hasSession()
+            ? (int) $request->session()->get('saklshi_customer_id', 0)
+            : 0;
         if ($customerId > 0) {
             $customer = User::query()->with('profile')->whereKey($customerId)->where('active', true)->first();
         }
